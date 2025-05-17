@@ -200,7 +200,7 @@
         "mp_cost": 8
     },
     "d001" : {
-        "name": "Leg Lock",
+        "name": "Lethargy",
         "desc" : "Debuff AGI to 1 target by 1 stage",
         "element": "agi",
         "type": "debuff",

@@ -3,17 +3,23 @@
         "name": "The Bard",
         "moon001" : {
             "dialogue": [
-                "Hey there! A new recruit eh?",
-                "Don't mind me. I'm here to aid you.",
-                "As you know, you are tasked to reach the top of the tower and defeat the guardian.",
-                "Now, do you have any questions?"
+                "A new recruit eh?",
+                "Now don't look at me like that. I'm here to aid you.",
+                "Now go on, reach the top of the tower and defeat the guardian.",
+                "Only that will you pass the test.",
+                "...Now, do you have any questions?"
             ],
             "choices": {
                 "mode" : "questions",
                 "options": {
-                    "The guardian?" : "The guardian guards the key of the gate, you need that to pass the test.",
-                    "Your aid?" : "Yes, music is a form of magic. And with that, I can heal you from fatigue and injuries.",
-                    "The tower's purpose?" : "The tower is designed to hone new recruits' skills."
+                    "The guardian?" : [
+                        "The guardian guards the key of the gate.",
+                        "Get that and you can pass the test."
+                    ],
+                    "Your aid?" : [
+                        "Yes, I can heal by playing a song.",
+                        "So no need to worries if you lose."
+                    ]
                 }
             },
             "statements": [
@@ -21,7 +27,7 @@
             ],
             "chat": [
                 "Hey there, friend!",
-                "You need something?"
+                "..Need something?"
             ]
         }
     },
@@ -49,7 +55,7 @@
                     ],
                     "I refuse" : [
                         "..I understand.", 
-                        "Come back here when you have change your mind.",
+                        "Come back here when you change your mind.",
                         "REFUSAL"
                     ]
                 },
@@ -158,7 +164,7 @@
             "chat" : [
                 "..Anything you want?"
             ],
-            "inventoryW": ["swd002", "fla001", "bb001"]
+            "inventoryW": ["swd002", "fla001", "flb001", "bb001"]
         }
     }
 }
