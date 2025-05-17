@@ -1,0 +1,29 @@
+{
+    "name": "Player",
+    "id" : "h001",
+    "lvl" : 1,
+    "exp" : 0,
+    "hp" : 20,
+    "mp" : 10,
+    "resist" : ["light", "dark"],
+    "vit" : 1,
+    "mind" : 1, 
+    "st" : 1,
+    "dex" : 1, 
+    "mag" : 1, 
+    "arc" : 1,
+    "agi" : 1,
+    "weapon" : "swd001",
+    "statProgression" : {
+        "1" : {"dex": 1}, 
+        "2" : {"vit" : 1, "mind": 1},
+        "3" : {"st": 1},
+        "4" : {"agi" : 1, "vit" : 1},
+        "5" : {"mag": 1},
+        "6" : {"mind" : 1, "arc": 1},
+        "7" : {"agi" : 1},
+        "8" : {"st": 1, "mag": 1},
+        "9" : {"dex": 1, "arc": 1},
+        "10" : {"vit": 1}
+    }
+}

@@ -1,0 +1,67 @@
+{
+    "swd001": {
+        "name": "Halved Sword",
+        "baseATK": 5,
+        "hitRate" : 90,
+        "element": "slash",
+        "type": "physical",
+        "description": "A broken sword, still decent enough to use.",
+        "buy" : 100,
+        "sell" : 50
+    },
+    "swd002": {
+        "name": "Iron Sword",
+        "baseATK": 9,
+        "hitRate" : 92,
+        "element": "slash",
+        "type": "physical",
+        "description": "A sword made of iron, a common weapon.",
+        "buy" : 1000,
+        "sell" : 500
+    },
+    "swd003": {
+        "name": "Soldier Sword",
+        "baseATK": 12,
+        "hitRate" : 92,
+        "element": "slash",
+        "type": "physical",
+        "description": "A sword made for common soldiers",
+        "buy" : 1500,
+        "sell" : 1000
+    },
+    "rpr001": {
+        "name": "Rapier",
+        "baseATK": 10,
+        "hitRate" : 95,
+        "element": "stab",
+        "type": "physical",
+        "description": "An old reliable rapier",
+        "buy" : 1200,
+        "sell" : 800
+    },
+    "cat001": {
+        "name": "Wooden Staff",
+        "baseATK": 5,
+        "hitRate" : 80,
+        "element": "strike",
+        "type": "physical",
+        "description": "A wooden staff used by mages."
+    },
+    "spr001": {
+        "name": "Halberd",
+        "baseATK": 8,
+        "hitRate" : 90,
+        "element": "slash",
+        "type": "physical",
+        "description": "A polearm used to stab and slash enemies."
+    },
+    "mon001": {
+        "name": "Zweihander",
+        "baseATK": 15,
+        "hitRate" : 85,
+        "element": "slash",
+        "type": "physical",
+        "description": "A large sword used by knights."
+    }
+
+}

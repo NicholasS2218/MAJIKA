@@ -1,0 +1,164 @@
+{
+    "npc001" : {
+        "name": "The Bard",
+        "moon001" : {
+            "dialogue": [
+                "Hey there! A new recruit eh?",
+                "Don't mind me. I'm here to aid you.",
+                "As you know, you are tasked to reach the top of the tower and defeat the guardian.",
+                "Now, do you have any questions?"
+            ],
+            "choices": {
+                "mode" : "questions",
+                "options": {
+                    "The guardian?" : "The guardian guards the key of the gate, you need that to pass the test.",
+                    "Your aid?" : "Yes, music is a form of magic. And with that, I can heal you from fatigue and injuries.",
+                    "The tower's purpose?" : "The tower is designed to hone new recruits' skills."
+                }
+            },
+            "statements": [
+                "Very well, off you go then!"
+            ],
+            "chat": [
+                "Hey there, friend!",
+                "You need something?"
+            ]
+        }
+    },
+    "npc002" : {
+        "name": "The White-haired Lady",
+        "alt-name": "Lucatiel",
+        "type": "playable",
+        "appear": 6,
+        "moon000" : {
+            "dialogue": [
+                "...",
+                "Have you seen it? The one at the top.",
+                "The Gate Keeper.",
+                "Chances of beating it is low if we fought it alone.",
+                "....But, I have a proposal for you.",
+                "What say we join forces? It will speed things up."
+            ],
+            "choices": { 
+                "options" : {
+                    "Very well" : [
+                        "You will not regret this decision.", 
+                        "I believe I have not introduced myself. I am Lucatiel, a recent recruit just like you",
+                        "UPDATE_NAME:Lucatiel",
+                        "JOIN_PARTY:playable/Lucatiel.json"
+                    ],
+                    "I refuse" : [
+                        "..I understand.", 
+                        "Come back here when you have change your mind.",
+                        "REFUSAL"
+                    ]
+                },
+                "refusal" : {
+                    "dialogue" : [
+                        "..Ready to work together?"
+                    ],
+                    "choices" : {
+                        "options" : {
+                            "Yes" : [
+                                "You will not regret this decision.", 
+                                "I believe I have not introduced myself. I am Lucatiel, a recent recruit just like you.",
+                                "UPDATE_NAME:Lucatiel",
+                                "JOIN_PARTY:playable/Lucatiel.json"
+                            ],
+                            "Not yet" : [
+                                "..I see.",
+                                "REFUSAL"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "moon001" : {
+            "dialogue" : [
+                "...",
+                "Greetings, is there anything you wish to know?",
+                "If it is within my capabilities, I will grant you the answer."
+            ],
+            "choices" : {
+                "About you" : [
+                    "Me? I joined because of my brother.",
+                    "Think of it as.. a way to repay my debt."
+                ],
+                "The Bard" : [
+                    "Oh that guy,",
+                    "A charming fellow, that's for sure.",
+                    "Coupled that with his healing prowess, he must be someone important."    
+                ]
+            },
+            "statements" : [
+                "..Farewell"
+            ]
+        },
+        "moon002" : {
+            "dialogue" : [
+                "..I am getting report of the enemies within grow stronger.",
+                "In fact, reports of new enemies sighted also appears.",
+                "You think this is because of we defeating the Gate Keeper?"
+            ]
+        }
+    },
+    "npc003" : {
+        "name" : "The Shopkeeper",
+        "type": "Merchant",
+        "appear": 4,
+        "moon001" : {
+            "dialogue" : [
+                "Hi, welcome. Are you a new customer?",
+                "Or a new company?",
+                "What's it gonna be?"
+            ],
+            "choices": {
+                "mode" : "questions",
+                "options" : {
+                    "I wanna buy items" : "SHOW_INVENTORY",
+                    "Purpose here" : [
+                        "The place is nice for business, with how many new recruits entering the tower.",
+                        "..Now don't get me wrong! I want you guys to succeed."
+                    ]
+                }
+            },
+            "statements": [
+                "Goodbye now! Come again soon!!"
+            ],
+            "chat" : [
+                "Welcome! Anything I can help?"
+            ],
+            "inventoryI": ["hp001", "hp002", "mp001"]
+        }
+    },
+    "npc004" : {
+        "name" : "The GearSmith",
+        "type": "Merchant",
+        "appear": 7,
+        "moon001" : {
+            "dialogue" : [
+                "...",
+                "What are you looking at?",
+                "If it's weapons and altered sidearms, then you are welcomed!"
+            ],
+            "choices": {
+                "mode" : "questions",
+                "options" : {
+                    "I wanna buy weapons" : "SHOW_WEAPONS",
+                    "Purpose here" : [
+                        "Nothing much. Been told to work here by the King Regent himself.",
+                        "It's also a good place to meet potential customers."
+                    ]
+                }
+            },
+            "statements": [
+                "Come back soon!"
+            ],
+            "chat" : [
+                "..Anything you want?"
+            ],
+            "inventoryW": ["swd002", "fla001", "bb001"]
+        }
+    }
+}

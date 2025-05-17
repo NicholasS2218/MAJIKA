@@ -1,0 +1,35 @@
+{
+    "fla001" : {
+        "name" : "FL-F001",
+        "baseATK" : 10,
+        "hitRate" : 90,
+        "element" : "fire",
+        "type" : "magic",
+        "effect" : {
+            "skill" : ["mg001"]
+        },
+        "description" : "An altered pistol, favored by soldiers of no talent. Convert wielder's magic to shoot a flaming projectile."
+    },
+    "flb001" : {
+        "name" : "FL-W001",
+        "baseATK" : 10,
+        "hitRate" : 90,
+        "element" : "wind",
+        "type" : "magic",
+        "effect" : {
+            "skill" : ["mg002"]
+        },
+        "description" : "An altered pistol, favored by soldiers of no talent. Convert wielder's magic to shoot a wind projectile."
+    },
+    "bb001" : {
+        "name" : "Blunderbuss",
+        "baseATK" : 25,
+        "hitRate" : 85,
+        "element" : "fire",
+        "type" : "physical",
+        "effect": {
+            "skill" : ["pg001"]
+        },
+        "description" : "A pistol, favored by infantry for its power."
+    }
+}

@@ -1,0 +1,212 @@
+{
+    "p001" : {
+        "name": "Cleave",
+        "desc" : "Weak SLASH atk to 1 target",
+        "element": "slash",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 10,
+        "mp_cost": 3
+    },
+    "p002" : {
+        "name": "Bash",
+        "desc" : "Weak STRIKE atk to 1 target",
+        "element": "strike",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 10,
+        "mp_cost": 3
+    },
+    "p003" : {
+        "name": "Thrust",
+        "desc" : "Weak STAB atk to 1 target",
+        "element": "stab",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 10,
+        "mp_cost": 3
+    },
+    "p004" : {
+        "name": "Scratch",
+        "desc": "Minor SLASH atk to 1 target",
+        "element": "pierce",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 7,
+        "mp_cost": 3
+    },
+    "p005" : {
+        "name": "Bite",
+        "desc": "Minor STAB atk to 1 target",
+        "element": "stab",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 7,
+        "mp_cost": 3
+    },
+    "p011" : {
+        "name": "Wild Strikes",
+        "desc" : "Multiple STRIKES to random targets",
+        "element": "strike",
+        "type": "physical",
+        "target": "multiple",
+        "hits" : 3,
+        "base_dmg": 7,
+        "mp_cost": 10
+    },
+    "m001" : {
+        "name": "Blaze",
+        "desc" : "Weak FIRE atk to 1 target",
+        "element": "fire",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 12,
+        "mp_cost": 5
+    },
+    "m002" : {
+        "name": "Frost",
+        "desc" : "Weak ICE atk to 1 target",
+        "element": "ice",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 12,
+        "mp_cost": 5
+    },
+    "m003" :{
+        "name": "Zap",
+        "desc" : "Weak ELEC atk to 1 target",
+        "element": "electric",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 12,
+        "mp_cost": 5
+    },
+    "m004" : {
+        "name": "Gust",
+        "desc" : "Weak WIND atk to 1 target",
+        "element": "wind",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 12,
+        "mp_cost": 5
+    },
+    "m005" : {
+        "name": "Bless",
+        "desc" : "Weak LIGHT atk to 1 target",
+        "element": "light",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 15,
+        "mp_cost": 7
+    },
+    "m006" : {
+        "name": "Hex",
+        "desc" : "Weak DARK atk to 1 target",
+        "element": "dark",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 15,
+        "mp_cost": 7
+    },
+    "m007" : {
+        "name": "Flame Burst",
+        "desc" : "Weak FIRE atk to ALL targets",
+        "element": "fire",
+        "type": "magic",
+        "target": "all",
+        "base_dmg": 18,
+        "mp_cost": 12
+    },
+    "pg001" : {
+        "name": "Burst Shot",
+        "desc": "Weak STAB atk to ALL targets",
+        "element": "stab",
+        "type": "physical",
+        "target": "all",
+        "base_dmg": 20,
+        "mp_cost": 10
+    },
+    "mg001" : {
+        "name": "Flame Shot",
+        "desc" : "Medium FIRE atk to 1 target",
+        "element": "fire",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 24,
+        "mp_cost": 10
+    },
+    "mg002" : {
+        "name": "Wind Shot",
+        "desc" : "Medium WIND bullet to 1 target",
+        "element": "wind",
+        "type": "magic",
+        "target": "single",
+        "base_dmg": 20,
+        "bonus_dmg": 10,
+        "mp_cost": 10
+    },
+    "h001" : {
+        "name": "Warmth",
+        "desc" : "Minor HEAL to 1 target",
+        "type": "heal",
+        "target": "single",
+        "base_heal": 5,
+        "mp_cost": 3
+    },
+    "h002" : {
+        "name": "Heal",
+        "desc" : "Weak HEAL to 1 target",
+        "type": "heal",
+        "target": "single",
+        "base_heal": 10,
+        "mp_cost": 5
+    },
+    "h003" : {
+        "name": "Cure",
+        "desc" : "Medium HEAL to 1 target",
+        "type": "heal",
+        "target": "single",
+        "base_heal": 17,
+        "mp_cost": 12
+    },
+    "b001" : {
+        "name": "Shield Up",
+        "desc" : "Buff DEF to 1 target by 1 stage",
+        "element" : "def",
+        "type": "buff",
+        "target": "single",
+        "buff_stage": 1,
+        "duration": 3,
+        "mp_cost": 8
+    },
+    "b002" : {
+        "name": "Haste",
+        "desc" : "Buff AGI to 1 target by 1 stage",
+        "element": "agi",
+        "type": "buff",
+        "target": "single",
+        "buff_stage": 1,
+        "duration": 3,
+        "mp_cost": 8
+    },
+    "b003" : {
+        "name": "Rally",
+        "desc" : "Buff ATK to 1 target by 1 stage",
+        "element": "atk",
+        "type": "buff",
+        "target": "single",
+        "buff_stage": 1,
+        "duration": 3,
+        "mp_cost": 8
+    },
+    "d001" : {
+        "name": "Leg Lock",
+        "desc" : "Debuff AGI to 1 target by 1 stage",
+        "element": "agi",
+        "type": "debuff",
+        "target": "single",
+        "debuff_stage": 1,
+        "duration": 3,
+        "mp_cost": 8
+    }
+}

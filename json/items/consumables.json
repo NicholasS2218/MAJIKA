@@ -1,0 +1,57 @@
+{
+    "hp001": {
+        "name": "Vit-Bar",
+        "description": "Restores 20 HP to a single target.",
+        "lore": "A nutritional bar used by many adventurers. Easy to carry but not tasty at all.",
+        "effect": {
+            "hp": 20
+        },
+        "rarity": 1,
+        "buy" : 200,
+        "sell" : 100
+    },
+    "hp002": {
+        "name": "Vit-Drink",
+        "description": "Restores 50 HP to a single target.",
+        "lore": "A nutritional drink oft used by town folks, it is the primary ingredient of many potions.",
+        "effect": {
+            "hp": 50
+        },
+        "rarity": 2,
+        "buy" : 500,
+        "sell" : 200
+    },
+    "hp003": {
+        "name": "Vit-Potion",
+        "description": "Restores 120 HP to a single target.",
+        "lore": "An enhanced Vit-Drink. It is the go-to item for town guards",
+        "effect": {
+            "hp": 120
+        },
+        "rarity": 3,
+        "buy" : 1200,
+        "sell" : 800
+    },
+    "mp001": {
+        "name": "Re-Mind Jelly",
+        "description": "Restores 20 MP to a single target.",
+        "lore": "Jelly used by scholars and children. Its sweetness will refresh the mind.",
+        "effect": {
+            "mp": 20
+        },
+        "rarity": 2,
+        "buy" : 400,
+        "sell" : 200
+    },
+    "mp002": {
+        "name": "Re-Mind Drink",
+        "description": "Restores 50 MP to a single target.",
+        "lore": "Drink made from the extract of an exotic plant. Instantly refresh the mind",
+        "effect": {
+            "mp": 50
+        },
+        "rarity": 3,
+        "buy" : 1000,
+        "sell" : 700
+    }
+}
