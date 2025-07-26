@@ -63,7 +63,7 @@ while run:
     
     while play:
         clear()
-        print(f"Day(s): {myParty.days} | What do you want to do?")
+        print(f"Day(s): {myParty.days} | Gold: {myParty.money}G | What do you want to do?")
         draw()
         print("1. Stats")
         print("2. Equipment")
@@ -175,40 +175,64 @@ while run:
                     
         elif dest == "3":
             clear()
-            print("Party's Items:")
+            print("Party's Inventory:")
             draw()
-            items, itemsEffect = myParty.display_items()
+            print("1. Consumables")
+            if myParty.key_item:
+                print("2. Key Items")
+            print("0. Back")
             draw()
             while True:
-                choice = input(">> " )
-                if choice.isdigit():
-                    choiceINT = int(choice)
-                    if 0 < choiceINT <= len(items):
-                        itemID = items[choiceINT - 1]
-                        effect = itemsEffect[choiceINT - 1]
-                        clear()
-                        print(f"On who?")
-                        for i, member in enumerate(myParty.members, 1):
-                            if "hp" in effect:
-                                print(f"{i}. {member.name} | HP: {member.hp}/{member.maxHP}")
-                            elif "mp" in effect:
-                                print(f"{i}. {member.name} | MP: {member.mp}/{member.maxMP}")
+                choice = input(">> ")
+                if choice == "1":
+                    clear()
+                    print("Party's Items:")
+                    draw()
+                    items, itemsEffect = myParty.display_items()
+                    while True:
+                        draw()
+                        choice = input(">> " )
+                        if choice.isdigit():
+                            choiceINT = int(choice)
+                            if 0 < choiceINT <= len(items):
+                                itemID = items[choiceINT - 1]
+                                effect = itemsEffect[choiceINT - 1]
+                                clear()
+                                print(f"On who?")
+                                for i, member in enumerate(myParty.members, 1):
+                                    if "hp" in effect:
+                                        print(f"{i}. {member.name} | HP: {member.hp}/{member.maxHP}")
+                                    elif "mp" in effect:
+                                        print(f"{i}. {member.name} | MP: {member.mp}/{member.maxMP}")
+                                print("0. Back")
+                                draw()
+                                while True:
+                                    memberInput = input(">> ") 
+                                    if memberInput.isdigit():
+                                        for i in range(len(myParty.members)):
+                                            if memberInput == str(i+1):
+                                                draw()
+                                                member = myParty.members[i]
+                                                myParty.use_item(itemID, member.name)
+                                        break
+                                    elif memberInput == "0":
+                                        break   
+                                break
+                            elif choice == "0":
+                                break
+
+                elif choice == "2" and myParty.key_item:
+                    clear()
+                    print("Party's Key Items:")
+                    draw()
+                    while True:
+                        myParty.display_keys()
                         print("0. Back")
                         draw()
-                        while True:
-                            memberInput = input(">> ") 
-                            if memberInput.isdigit():
-                                for i in range(len(myParty.members)):
-                                    if memberInput == str(i+1):
-                                        draw()
-                                        member = myParty.members[i]
-                                        myParty.use_item(itemID, member.name)
-                                break
-                            elif memberInput == "0":
-                                break   
-                        break
-                    elif choice == "0":
-                        break
+                        back = input(">> ")
+                        if back == "0":
+                            break
+                break
 
         elif dest == "4": #NPCs go here, blacksmith, item shop, etc
             npcs = load_npcs("json/npcs.json")
@@ -226,7 +250,14 @@ while run:
             else:
                 print("Talk to who?")
                 for _, data in appearedNPC:
-                    print(f"{i}. {data.name}")
+                    state = myParty.npcs.setdefault(data.id, {
+                        "encounter" : 0,
+                        "refusal" : False,
+                        "name" : False
+                    })
+                    
+                    displayName = data.altName if state["encounter"] == 0 else data.name
+                    print(f"{i}. {displayName}")
                     i += 1
                 print("0. Back")
                 draw()
@@ -259,6 +290,9 @@ while run:
                         myParty.update_party(days = 1)
                         myParty.save_party()
                     else:
+                        for member in myParty.members:
+                            member.hp = member.maxHP
+                            member.mp = member.maxMP
                         myParty.update_party(days = 1, moons = 1)
                         myParty.save_party()
                     break

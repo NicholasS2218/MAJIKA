@@ -32,10 +32,10 @@
         }
     },
     "npc002" : {
-        "name": "The White-haired Lady",
-        "alt-name": "Lucatiel",
+        "name": "Lucatiel",
+        "alt-name": "The White Lady",
         "type": "playable",
-        "appear": 6,
+        "appear": 5,
         "moon000" : {
             "dialogue": [
                 "...",
@@ -45,13 +45,19 @@
                 "....But, I have a proposal for you.",
                 "What say we join forces? It will speed things up."
             ],
+            "alt_dialogue": [
+                "MOON:1",
+                "...",
+                "You have defeated the Gate Keeper?",
+                "..Impressive. I have a request for you.",
+                "What say we join forces? I can promise you that this will benefit you."
+            ],
             "choices": { 
                 "options" : {
                     "Very well" : [
                         "You will not regret this decision.", 
                         "I believe I have not introduced myself. I am Lucatiel, a recent recruit just like you",
-                        "UPDATE_NAME:Lucatiel",
-                        "JOIN_PARTY:playable/Lucatiel.json"
+                        "JOIN_PARTY:json/playable/Lucatiel.json"
                     ],
                     "I refuse" : [
                         "..I understand.", 
@@ -87,32 +93,58 @@
                 "If it is within my capabilities, I will grant you the answer."
             ],
             "choices" : {
-                "About you" : [
-                    "Me? I joined because of my brother.",
-                    "Think of it as.. a way to repay my debt."
-                ],
-                "The Bard" : [
-                    "Oh that guy,",
-                    "A charming fellow, that's for sure.",
-                    "Coupled that with his healing prowess, he must be someone important."    
-                ]
+                "mode" : "questions",
+                "options" : {
+                    "About you" : [
+                        "Me? I am from the northern lands."
+                    ],
+                    "The Bard" : [
+                        "Oh that guy,",
+                        "A charming fellow, that's for sure.",
+                        "Coupled that with his healing prowess, he must be someone important."    
+                    ]
+                }
             },
             "statements" : [
                 "..Farewell"
+            ],
+            "chat" : [
+                "...Something wrong?"
             ]
         },
         "moon002" : {
+            "requirement" : ["k001", ["lct001", "r000"]],
             "dialogue" : [
-                "..I am getting report of the enemies within grow stronger.",
-                "In fact, reports of new enemies sighted also appears.",
-                "You think this is because of we defeating the Gate Keeper?"
+                "..Pardon, but the last fight we had against the Gate Keeper.",
+                "Didn't it drop something?",
+                "Can you show me? If only for a while."
+            ],
+            "choices" : {
+                "options" : {
+                    "Present the Gate Keeper's Soul" : [
+                        "My gratitude.",
+                        "As expected, the soul is restless, it's phasing in and out.",
+                        "It seems to be able to move across time and space abnormally fast.",
+                        "...Forgive me, but please allow me to imbue a part of it to myself.",
+                        "RANK_UP:lct001",
+                        "...!! W-What an unstable power. But I feel stronger."
+                    ],
+                    "Refuse" : [
+                        "I understand.",
+                        "REFUSAL"
+                    ]
+                }
+            },
+            "alt_dialogue" : [
+                "Now that the Gate Keeper is defeated.",
+                "I wonder what will happened to the tower."
             ]
         }
     },
     "npc003" : {
         "name" : "The Shopkeeper",
         "type": "Merchant",
-        "appear": 4,
+        "appear": 2,
         "moon001" : {
             "dialogue" : [
                 "Hi, welcome. Are you a new customer?",
@@ -141,7 +173,7 @@
     "npc004" : {
         "name" : "The GearSmith",
         "type": "Merchant",
-        "appear": 7,
+        "appear": 4,
         "moon001" : {
             "dialogue" : [
                 "...",
@@ -164,7 +196,8 @@
             "chat" : [
                 "..Anything you want?"
             ],
-            "inventoryW": ["swd002", "fla001", "flb001", "bb001"]
+            "inventoryS": ["fla001", "flb001", "bb001"],
+            "inventoryW": ["swd002"]
         }
     }
 }

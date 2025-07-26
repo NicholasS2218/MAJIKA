@@ -111,7 +111,7 @@
     {
         "id": "b001",
         "name": "GATE KEEPER",
-        "hp": 200,
+        "hp": 150,
         "atk": 10,
         "turns": 2,
         "defP": 20,
@@ -123,6 +123,7 @@
         "skills" : ["p002", "m003", "p011"],
         "exp": 5000,
         "money": 5000,
+        "key_item" : ["k001"],
         "areaIDs": ["ab001"]
     }
   ]

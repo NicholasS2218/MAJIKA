@@ -21,6 +21,7 @@ class Enemy:
         self.load_skills()
         self.exp = enemy_data["exp"]
         self.money = enemy_data["money"]
+        self.key_item = enemy_data.get("key_item", [])
         self.areaIDs = enemy_data.get("areaIDs", [])
 
         self.buff_atk = 0
@@ -112,13 +113,15 @@ class Enemy:
         if self.hp <= 0:
             print(f">> {self.name} is defeated!")
 
-    def take_physical_damage(self, dmg):
-        reduced = math.ceil(max(dmg * (1 - (self.defP/100)), 0))
+    def take_physical_damage(self, base_dmg):
+        dmg = math.ceil(base_dmg * (1 - (self.defP/100)))
+        reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
 
-    def take_magic_damage(self, dmg):
-        reduced = math.ceil(max(dmg * (1 - (self.defM/100)), 0))
+    def take_magic_damage(self, base_dmg):
+        dmg = math.ceil(base_dmg * (1 - (self.defP/100)))
+        reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
     
@@ -176,12 +179,14 @@ class Enemy:
             target = random.choice(targetParty)
             return skill, target
 
-
 class EnemyParty:
     def __init__(self, enemyList):
         self.enemyMembers = [Enemy(data) for data in enemyList]
         self.exp = sum(enemy.exp for enemy in self.enemyMembers)
         self.money = sum(enemy.money for enemy in self.enemyMembers)
+        self.key_item = []
+        self.key_item.extend(item for enemy in self.enemyMembers if enemy.key_item for item in enemy.key_item)
+        self.passive_skills = {}
 
     def is_defeated(self):
         return all(not enemy.is_alive() for enemy in self.enemyMembers)

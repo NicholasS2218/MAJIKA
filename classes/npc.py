@@ -4,13 +4,31 @@ class NPC:
     def __init__(self, id, data):
         self.id = id
         self.name = data.get("name", "???")
-        self.altName = data.get("alt-name", "???")
+        self.altName = data.get("alt-name", self.name)
         self.type = data.get("type", "NPC")
         self.data = data
     
     def appear(self, days):
         return self.data.get("appear", 0) <= days
 
+    def requirements_check(self, requirements, myParty):
+        for req in requirements:
+            if isinstance(req, list) and len(req) == 2: #[member_id, rank_id]
+                member_id, expected_rank = req
+                member = next((m for m in myParty.members if m.id == member_id), None)
+                if not member or f"r{member.rank:03}" != expected_rank:
+                    return False
+                
+            elif isinstance(req, str):
+                if req.startswith("k"):
+                    if req not in myParty.key_item:
+                        return False
+                else:
+                    return False
+            else:
+                return True
+        return True
+                
     def talk(self, myParty):
         state = myParty.npcs.setdefault(self.id, {
             "encounter" : 0,
@@ -18,17 +36,24 @@ class NPC:
             "name" : False
         })
         
-        displayName = self.altName if state["name"] else self.name
-        nameUpdate = None
+        moon_ID = "moon000"
+        displayName = self.altName if state["encounter"] == 0 else self.name
         encounterID = state["encounter"]
         maxMoons = myParty.moons if myParty else encounterID
 
         for i in range(encounterID, maxMoons + 1):
-            key = f"moon{i:03}"
-            encounter = self.data.get(key)
+            moon_ID = f"moon{i:03}"
+            encounter = self.data.get(moon_ID)
 
             if not encounter:
                 continue
+
+            if not self.requirements_check(encounter.get("requirement", []), myParty):
+                if "alt_dialogue" in encounter:
+                    print(f"{displayName}:")
+                    for line in encounter["alt_dialogue"]:
+                        input(f">> {line}")
+                return
 
             print(f"{displayName}:") #dialogue or sub-dialogue from refusal
             if state["refusal"] and "refusal" in encounter["choices"]:
@@ -55,8 +80,8 @@ class NPC:
                     print("You:")
                     draw()
                     options = list(optionsDICT.keys()) 
-                    for i, key in enumerate(options, 1):
-                        print(f"{i}. {key}")
+                    for i, choice in enumerate(options, 1):
+                        print(f"{i}. {choice}")
                     
                     if mode == "questions":
                         print("0. Nevermind.")
@@ -83,11 +108,8 @@ class NPC:
                                 elif response == "SHOW_WEAPONS" and isinstance(self, Merchant):
                                     clear()
                                     items = encounter.get("inventoryW", [])
-                                    self.show_inventory(items, myParty, "weapons")
-                                elif response == "SHOW_SIDES" and isinstance(self, Merchant):
-                                    clear()
-                                    items = encounter.get("inventoryS", [])
-                                    self.show_inventory(items, myParty, "sidearm")
+                                    extra_items = encounter.get("inventoryS", [])
+                                    self.show_inventory(items, myParty, "weapons", extra_items, "sidearm")
                                 else:
                                     input(f">> {response}")
                             elif isinstance(response, list):
@@ -98,16 +120,20 @@ class NPC:
                                         print(f">> {self.altName} has joined your party!")
                                         input(">> ")
                                         state["refusal"] = False
-                                    elif isinstance(line, str) and line.startswith("UPDATE_NAME:"):
-                                        nameUpdate = line.replace("UPDATE_NAME:", "").strip() #for in game update
-                                        state["name"] = True #for next time
+                                        self.name = self.altName #update name
+                                    elif isinstance(line, str) and line.startswith("RANK_UP:"):
+                                        member_id = line.replace("RANK_UP:", "").strip()
+                                        for member in myParty.members:
+                                            if member.id == member_id:
+                                                print()
+                                                print(f"{member.name.upper()}'s ability expanded!!")
+                                                draw()
+                                                print(f"{self.name}: ")
+                                                member.rank_up()
                                     elif line == "REFUSAL":
                                         state["refusal"] = True
                                     else:
                                         input(f">> {line}")
-
-                            if nameUpdate:
-                                displayName = nameUpdate
 
                             if mode != "questions":
                                 break
@@ -126,7 +152,7 @@ class Merchant(NPC):
     def __init__(self, id, data):
         super().__init__(id, data)
     
-    def show_inventory(self, items, myParty, t):
+    def show_inventory(self, items, myParty, t, extra_items = [], p = None):
         if not items:
             print(f"{self.name}:")
             input(">> ... I have nothing to sell.")
@@ -134,20 +160,46 @@ class Merchant(NPC):
 
         print(f"{self.name}'s Shop")
         draw()
-        self.display_items(items, myParty, t)
+        self.display_items(items, myParty, t, extra_items, p)
         draw()
 
-    def display_items(self, items, myParty, t):
+    def display_items(self, items, myParty, t, extra_items = [], p = None):
+        itemData = {}
         path = f"json/items/" + t + ".json"
         with open(path) as f:
-                itemData = json.load(f)
+                itemData.update(json.load(f))
+        if p:
+            path = f"json/items/" + p + ".json"
+            with open(path) as f:
+                itemData.update(json.load(f))
 
         priceList = []
-        for i, itemID in enumerate(items, 1):
-            data = itemData.get(itemID, None)
-            print(f"{i}. {data['name']} | {data['description']} | PRICE: {data['buy']}G")
+        indexed_items = []
+
+        # Section 1: Weapons
+        print("-- Weapons --")
+        for itemID in items:
+            data = itemData.get(itemID)
+            if not data:
+                continue
+            index = len(priceList) + 1
+            print(f"{index}. {data['name']} | {data['description']} | PRICE: {data['buy']}G")
             priceList.append(data["buy"])
-        if items:
+            indexed_items.append((itemID, t))  # Save itemID with its type
+
+        # Section 2: Sidearms
+        if extra_items:
+            print("\n-- Sidearms --")
+            for itemID in extra_items:
+                data = itemData.get(itemID)
+                if not data:
+                    continue
+                index = len(priceList) + 1
+                print(f"{index}. {data['name']} | {data['description']} | PRICE: {data['buy']}G")
+                priceList.append(data["buy"])
+                indexed_items.append((itemID, p))  # Save itemID with its type
+
+        if indexed_items:
             print("0. Back")
         draw()
 
@@ -155,10 +207,10 @@ class Merchant(NPC):
             choice = input(">> " )
             if choice.isdigit():
                 choiceINT = int(choice)
-                if 1 <= choiceINT <= len(items):
-                    itemID = items[choiceINT - 1]
+                if 1 <= choiceINT <= len(indexed_items):
+                    (itemID, item_type) = indexed_items[choiceINT - 1]
                     price = priceList[choiceINT - 1]
-                    self.buy_items(itemID, price, myParty, t)
+                    self.buy_items(itemID, price, myParty, item_type)
                     break
                 elif choiceINT == 0:
                     break

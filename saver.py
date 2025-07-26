@@ -52,7 +52,7 @@ def update(member):
     return member
 
 
-def save(party, money, weapons, sides, inventory, days, moons, npcs):
+def save(party, money, weapons, sides, inventory, key_item, days, moons, npcs):
     for member in party:
         if "stats" in member:
             member.pop("stats", None)  # Remove stats from member before saving
@@ -63,6 +63,7 @@ def save(party, money, weapons, sides, inventory, days, moons, npcs):
         "weapons": weapons,
         "sides": sides,
         "inventory": inventory,
+        "key_item" : key_item,
         "days": days,
         "moons": moons,
         "npcs" : npcs
@@ -80,6 +81,7 @@ def load():
         weapons = data.get("weapons", {})
         sides = data.get("sides", {})
         inventory = data.get("inventory", {})
+        key_item = data.get("key_item", [])
         days = data.get("days", 1)
         moons = data.get("moons", 1)
         npcs = data.get("npcs", {})
@@ -88,7 +90,7 @@ def load():
             update(member)
 
         print("Game loaded successfully!")
-        return party, money, weapons, sides, inventory, days, moons, npcs
+        return party, money, weapons, sides, inventory, key_item, days, moons, npcs
         
     except FileNotFoundError:
         print("No save file found.")

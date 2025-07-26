@@ -8,7 +8,9 @@
         "effect" : {
             "skill" : ["mg001"]
         },
-        "description" : "An altered pistol, favored by soldiers of no talent. Convert wielder's magic to shoot a flaming projectile."
+        "description" : "An altered pistol capable of shooting a flaming projectile.",
+        "buy" : 460,
+        "sell" : 230
     },
     "flb001" : {
         "name" : "FL-W001",
@@ -19,17 +21,21 @@
         "effect" : {
             "skill" : ["mg002"]
         },
-        "description" : "An altered pistol, favored by soldiers of no talent. Convert wielder's magic to shoot a wind projectile."
+        "description" : "An altered pistol capable of shooting a wind projectile.",
+        "buy" : 480,
+        "sell" : 240
     },
     "bb001" : {
         "name" : "Blunderbuss",
         "baseATK" : 25,
         "hitRate" : 85,
-        "element" : "fire",
+        "element" : "stab",
         "type" : "physical",
         "effect": {
             "skill" : ["pg001"]
         },
-        "description" : "A pistol, favored by infantry for its power."
+        "description" : "A basic pistol, favored by infantry for its power.",
+        "buy" : 440,
+        "sell" : 220
     }
 }

@@ -123,11 +123,11 @@ class Tower:
             
             while True:
                 choice = input(">> ")
-                print()
                 if choice.isdigit():
                     door_action = list(floor.doors.values())[int(choice) - 1]
                     break
-
+            
+            print()
             result = door_action(self.myParty)
             self.current += 1
             if result == "defeated":

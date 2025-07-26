@@ -43,7 +43,7 @@ class PartyMember:
         self.weaponID, self.weapon = self.resolve_item(weapon, lambda wid: self.get_item(wid, "weapons.json", "weaponData"))
         self.sideID, self.side = self.resolve_item(side, lambda sid: self.get_item(sid, "sidearm.json", "sideData"))
         self.baseATK = self.weapon["baseATK"] if self.weapon else 1
-        if isinstance(self.side, list):
+        if isinstance(self.side, dict):
             self.sideSkills = self.side.get("effect", {}).get("skill", [])
         else:
             self.sideSkills = None
@@ -54,6 +54,20 @@ class PartyMember:
         self.tempStats = self.baseStats.copy()
 
         self.statProgression = kwags.get("statProgression", {})
+        self.rank = kwags.get("rank", 0)
+
+    def rank_up(self):
+        with open("json/ranks.json") as f:
+            rewards_data = json.load(f)
+
+        self.rank += 1
+        rank = f"r{self.rank:03}"
+        rewards = rewards_data.get(self.id).get(rank)
+
+        if rewards:
+            new_skills = rewards.get("skills", [])
+            print(new_skills)
+            self.skills.extend(skill for skill in new_skills if skill not in self.skills)
 
     def resolve_item(self, item, get_func):
         if isinstance(item, dict):
@@ -72,7 +86,6 @@ class PartyMember:
         with open(path) as f:
             setattr(self, targetAttr, json.load(f))
         return getattr(self, targetAttr).get(itemID, None)
-
 
     def level_up(self):
         tallyHP = 2
@@ -229,13 +242,15 @@ class PartyMember:
                 draw()
                 print(f">> {self.name} learned {skill["name"]}!")
 
-    def take_physical_damage(self, dmg):
-        reduced = math.ceil(max(dmg * (1 - (self.stats["defP"]/100)), 0))
+    def take_physical_damage(self, base_dmg):
+        dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100)))
+        reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
 
-    def take_magic_damage(self, dmg):
-        reduced = math.ceil(max(dmg * (1 - (self.stats["defM"]/100)), 0))
+    def take_magic_damage(self, base_dmg):
+        dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100)))
+        reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
     
@@ -261,6 +276,7 @@ class PartyMember:
             "side" : self.sideID,
             "skills": self.skills,
             "statProgression": self.statProgression,
+            "rank": self.rank,
         }
 
 # Party class to handle all members
@@ -281,6 +297,8 @@ class Party:
         self.inventory = {
             "hp001" : {"quantity": 1},
         }
+        self.key_item = []
+        self.passive_skills = {}
         self.days = 1
         self.moons = 1
         self.npcs = {}
@@ -305,6 +323,14 @@ class Party:
             print("No items available.")
             print("0. Back")
             return [], []
+    
+    def display_keys(self):
+        with open("json/items/key.json") as f:
+            key_data = json.load(f)
+
+        for i, key_ID in enumerate(self.key_item, 1):
+            key_info = key_data.get(key_ID, None)
+            print(f"{i}. {key_info["name"]} | {key_info["description"]}")
 
     def use_item(self, itemID, user):
         member = self.get(user)
@@ -318,13 +344,12 @@ class Party:
                 print(f">> {member.name} used {data["name"]}!")
                 if "hp" in effect:
                     member.hp = min(member.maxHP, member.hp + effect["hp"])
-                    print(f">> HP restored to {member.hp}.")
+                    input(f">> HP restored to {member.hp}.")
                 if "mp" in effect:
                     member.mp = min(member.maxMP, member.mp + effect["mp"])
-                    print(f">> MP restored to {member.mp}.")
+                    input(f">> MP restored to {member.mp}.")
                 #add other effects here
                 item["quantity"] -= 1
-                input(">> ")
 
     def add_equip(self, itemID, user = None, type = "weapon"):
         storage = self.equipment[type]
@@ -427,7 +452,16 @@ class Party:
         else:
             self.inventory[itemID] = {"quantity": quantity}
 
-    def update_party(self, money = None, newItem = None, newWeapon = None, weaponType = None, qty = 1, days = None, moons = None):
+    def add_key(self, newKey):
+        if isinstance(newKey, list):
+            for keyID in newKey:
+                if keyID not in self.key_item:
+                    self.key_item.append(keyID)
+        else:
+            if newKey not in self.key_item:
+                self.key_item.append(newKey)
+
+    def update_party(self, money = None, newKey = None, newItem = None, newWeapon = None, weaponType = None, qty = 1, days = None, moons = None):
         if money is not None:
             self.money += money
 
@@ -443,21 +477,25 @@ class Party:
         if moons is not None:
             self.moons += moons
 
+        if newKey is not None:
+            self.add_key(newKey)
+
     def save_party(self):
         # Convert members to dictionaries for saving
         party_data = [member.to_dict() for member in self.members]
-        save(party_data, self.money, self.weapons, self.sides, self.inventory, self.days, self.moons, self.npcs)  # Call save function
+        save(party_data, self.money, self.weapons, self.sides, self.inventory, self.key_item, self.days, self.moons, self.npcs)  # Call save function
 
     def load_party(self):
         # Load the game data
         game_data = load()
         if game_data:
-            party_data, money, weapons, sides, inventory, days, moons, npcs = game_data
+            party_data, money, weapons, sides, inventory, key_item, days, moons, npcs = game_data
             self.members = [PartyMember(**member_data) for member_data in party_data]
             self.money = money
             self.weapons = weapons
             self.sides = sides
             self.inventory = inventory
+            self.key_item = key_item
             self.days = days
             self.moons = moons
             self.npcs = npcs
