@@ -14,7 +14,7 @@
         "element": "strike",
         "type": "physical",
         "target": "single",
-        "base_dmg": 10,
+        "base_dmg": 12,
         "mp_cost": 3
     },
     "p003" : {
@@ -23,7 +23,7 @@
         "element": "stab",
         "type": "physical",
         "target": "single",
-        "base_dmg": 10,
+        "base_dmg": 9,
         "mp_cost": 3
     },
     "p004" : {
@@ -50,7 +50,7 @@
         "element": "stab",
         "type": "physical",
         "target": "single",
-        "base_dmg": 7,
+        "base_dmg": 6,
         "mp_cost": 1
     },
     "p007" : {
@@ -68,7 +68,7 @@
         "element": "strike",
         "type": "physical",
         "target": "single",
-        "base_dmg": 20,
+        "base_dmg": 22,
         "mp_cost": 7
     },
     "p009" : {
@@ -77,17 +77,18 @@
         "element": "stab",
         "type": "physical",
         "target": "single",
-        "base_dmg": 20,
+        "base_dmg": 18,
         "mp_cost": 7
     },
     "p010" : {
-        "name": "Deep Thrust",
-        "desc": "Medium STAB atk to 1 target",
-        "element": "stab",
+        "name": "Wild Slashes",
+        "desc": "Multiple SLASHES to random targets",
+        "element": "slash",
         "type": "physical",
-        "target": "single",
-        "base_dmg": 20,
-        "mp_cost": 7
+        "target": "multiple",
+        "hits": 3,
+        "base_dmg": 7,
+        "mp_cost": 10
     },
     "p011" : {
         "name": "Wild Strikes",
@@ -96,10 +97,20 @@
         "type": "physical",
         "target": "multiple",
         "hits" : 3,
-        "base_dmg": 7,
+        "base_dmg": 10,
         "mp_cost": 10,
         "min_hp_percent": 0,
         "max_hp_percent": 50
+    },
+    "p012" : {
+        "name": "Wild Thrusts",
+        "desc": "Multiple STABS to random targets",
+        "element": "stab",
+        "type": "physical",
+        "target": "multiple",
+        "hits": 3,
+        "base_dmg": 7,
+        "mp_cost": 10
     },
     "m001" : {
         "name": "Blaze",

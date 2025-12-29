@@ -241,6 +241,7 @@ class PartyMember:
             self.modify_stat("atk", self.buff_atk, "atk")
             self.modify_stat("skillP", self.buff_atk, "atk")
             self.modify_stat("skillM", self.buff_atk, "atk")
+            self.modify_stat("skillA", self.buff_atk, "atk")
 
         if self.buff_def != 0:
             self.modify_stat("defP", self.buff_def, "def")
