@@ -1,5 +1,5 @@
 from saver import save, load, update
-from others import  clear, draw
+from helpers import  clear, draw
 import json, math
 
 class PartyMember:
@@ -25,9 +25,15 @@ class PartyMember:
         self.mag = mag
         self.arc = arc
         self.agi = agi
-        self.skills = kwags.get("skill", [])
-        if not self.skills:
+        self.skillIDs = kwags.get("skill", [])
+        if not self.skillIDs:
             self.default_skills()
+
+        self.skills = []
+        self.load_skills()
+
+        self.passive_uses = {} 
+        self.initialize_passive_uses()
 
         self.buff_atk = 0
         self.buff_def = 0
@@ -56,18 +62,37 @@ class PartyMember:
         self.statProgression = kwags.get("statProgression", {})
         self.rank = kwags.get("rank", 0)
 
+        self.status_effects = {
+            "bleed": {"active": False, "duration": 0, "target_maxHP": 0},
+            "frenzy": {},
+            "mute": {},
+            "disarm": {}
+        }
+
     def rank_up(self):
         with open("json/ranks.json") as f:
             rewards_data = json.load(f)
+
+        with open("json/skills.json", "r") as f:
+            skillsJSON = json.load(f)
 
         self.rank += 1
         rank = f"r{self.rank:03}"
         rewards = rewards_data.get(self.id).get(rank)
 
         if rewards:
-            new_skills = rewards.get("skills", [])
-            print(new_skills)
-            self.skills.extend(skill for skill in new_skills if skill not in self.skills)
+            new_skill_ids = rewards.get("skills", [])
+            print(new_skill_ids)
+
+            for skillID in new_skill_ids:
+                if skillID not in self.skillIDs:
+                    self.skillIDs.append(skillID)
+                    
+                    # Load full skill data
+                    if skillID in skillsJSON:
+                        skillData = skillsJSON[skillID].copy()
+                        skillData["id"] = skillID
+                        self.skills.append(skillData)
 
     def resolve_item(self, item, get_func):
         if isinstance(item, dict):
@@ -88,34 +113,34 @@ class PartyMember:
         return getattr(self, targetAttr).get(itemID, None)
 
     def level_up(self):
-        tallyHP = 2
-        tallyMP = 1
+        tallyHP = math.ceil(self.maxHP * 0.03)
+        tallyMP = math.ceil(self.maxMP * 0.03)
         self.maxHP += tallyHP
         self.maxMP += tallyMP
         clear()
         draw()
         print(f">> {self.name} leveled up to level {self.lvl}!")
-        gains = self.statProgression.get(str(self.lvl), {})
-        vit = self.vit + gains.get("vit", 0)
-        mind = self.mind + gains.get("mind", 0)
-
-        if "vit" in gains:
-            bonus = math.ceil(math.sqrt(vit + self.lvl)*1.5)
-            self.maxHP +=  bonus
-            tallyHP += bonus
-
-        if "mind" in gains:
-            bonus = math.ceil(math.sqrt(mind + self.lvl)*1.2)
-            self.maxMP +=  bonus
-            tallyMP += bonus
-
-        print(f">> HP: {self.maxHP - tallyHP} -> {self.maxHP}")
-        print(f">> MP: {self.maxMP - tallyMP} -> {self.maxMP}")
+        lvl_key = str((self.lvl - 1) % 10 + 1)
+        gains = self.statProgression.get(lvl_key, {})
 
         for stat, value in gains.items():
             if hasattr(self, stat):
                 setattr(self, stat, getattr(self, stat) + value)
                 print(f">> {stat.upper()}: {getattr(self, stat) - value} -> {getattr(self, stat)}")
+
+        if "vit" in gains:
+            bonus = self.vit * 5 #math.ceil(math.sqrt(vit + self.lvl)*1.5)
+            self.maxHP +=  bonus
+            tallyHP += bonus
+
+        if "mind" in gains:
+            bonus = self.mind * 5 #math.ceil(math.sqrt(mind + self.lvl)*1.2)
+            self.maxMP +=  bonus
+            tallyMP += bonus
+
+        draw()
+        print(f">> HP: {self.maxHP - tallyHP} -> {self.maxHP}")
+        print(f">> MP: {self.maxMP - tallyMP} -> {self.maxMP}")
 
         self.update_stats()
         self.get_skills()
@@ -158,13 +183,34 @@ class PartyMember:
             elif stat == "6":
                 self.arc += 1
                 print(">> Arcane increased!")
-            elif stat == "7": #update this 
+            elif stat == "7":
                 self.agi += 1
                 print(">> Agility increased!")
 
             self.get_skills()
             self.update_stats()  # Update stats after leveling up
             input(">> ")
+
+    def load_skills(self):
+        with open("json/skills.json", "r") as f:
+            skillsJSON = json.load(f)
+        
+        full_skills = []
+        for skillID in self.skills:
+            if skillID in skillsJSON:
+                skillData = skillsJSON[skillID].copy()
+                skillData["id"] = skillID
+                full_skills.append(skillData)
+        self.skills = full_skills
+
+    def initialize_passive_uses(self):
+        for skill in self.skills:
+            if skill.get("type") == "survival":
+                uses = skill.get("uses_per_battle", 1)
+                self.passive_uses[skill["id"]] = uses
+
+    def reset_passive_uses(self):
+        self.initialize_passive_uses()
 
     def reset_stat(self):
         self.tempStats = self.baseStats.copy()
@@ -222,38 +268,80 @@ class PartyMember:
             for lvl in range(1, self.lvl+1):
                 skills = tree.get(str(lvl), [])
                 for skill in skills:
-                    if skill not in self.skills:
-                        self.skills.append(skill)
+                    if skill not in self.skillIDs:
+                        self.skillIDs.append(skill)
 
     def get_skills(self):
         with open("json/skilltree.json", "r") as f:
             skillTree = json.load(f)
 
+        with open("json/skills.json", "r") as f:
+            skillsJSON = json.load(f)
+
         tree = skillTree.get(self.id, {})
         newSkills = tree.get(str(self.lvl), [])
+
         for skillID in newSkills:
-            if skillID not in self.skills:
-                self.skills.append(skillID)
+            if skillID not in self.skillIDs:
+                self.skillIDs.append(skillID)
 
-                with open("json/skills.json", "r") as f:
-                    skills = json.load(f)
+                if skillID in skillsJSON:
+                    skillData = skillsJSON[skillID].copy()
+                    skillData["id"] = skillID
+                    self.skills.append(skillData)
                 
-                    skill = skills.get(skillID, None)
+                skill = skillsJSON.get(skillID, None)
                 draw()
-                print(f">> {self.name} learned {skill["name"]}!")
+                print(f">> {self.name} learned {skill['name']}!")
 
-    def take_physical_damage(self, base_dmg):
-        dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100)))
+    def take_physical_damage(self, base_dmg, dmg_type = "none"):
+        if dmg_type == "strike":
+            defPEN = 0.5
+            dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100 * defPEN)))
+        else:
+            dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100)))
+
         reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
 
     def take_magic_damage(self, base_dmg):
-        dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100)))
+        dmg = math.ceil(base_dmg * (1 - (self.stats["defM"]/100)))
         reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
     
+    def take_arcane_damage(self, base_dmg):
+        dmg = math.ceil(base_dmg * (1 - (self.stats["defA"]/100)))
+        reduced = max(dmg, 1)
+        self.hp = max(self.hp - reduced, 0)
+        return reduced
+    
+    def apply_bleed(self, target_maxHP):
+        self.status_effects["bleed"] = {
+            "active": True,
+            "duration": 3,
+            "target_maxHP": target_maxHP  # Store target's maxHP when applied
+        }
+    
+    def process_status_effects(self):
+        bleed = self.status_effects["bleed"]
+        if bleed["active"]:
+            bleed_dmg = math.ceil(bleed["source_maxHP"] * 0.05)
+            self.hp = max(self.hp - bleed_dmg, 0)
+            bleed["duration"] -= 1
+            
+            print(f">> {self.name} takes {bleed_dmg} bleed damage!")
+            
+            if bleed["duration"] <= 0:
+                bleed["active"] = False
+                print(f">> {self.name}'s bleed has ended.")
+            else:
+                print(f">> Bleed duration: {bleed['duration']} turns remaining.")
+            
+            return bleed_dmg
+        return 0
+
     def to_dict(self):
         return {
             "name": self.name,
@@ -274,7 +362,7 @@ class PartyMember:
             "agi": self.agi,
             "weapon": self.weaponID,
             "side" : self.sideID,
-            "skills": self.skills,
+            "skills": self.skillIDs,
             "statProgression": self.statProgression,
             "rank": self.rank,
         }
@@ -312,7 +400,7 @@ class Party:
         for i, (itemID, item) in enumerate(self.inventory.items(), 1):
             if item["quantity"] > 0:
                 data = itemData.get(itemID, None)
-                print(f"{i}. {data["name"]} {item['quantity']}x | {data["description"]}")
+                print(f"{i}. {data['name']} {item['quantity']}x | {data['description']}")
                 itemlist.append(itemID)
                 itemEffect.append(data["effect"])
         
@@ -330,7 +418,7 @@ class Party:
 
         for i, key_ID in enumerate(self.key_item, 1):
             key_info = key_data.get(key_ID, None)
-            print(f"{i}. {key_info["name"]} | {key_info["description"]}")
+            print(f"{i}. {key_info['name']} | {key_info['description']}")
 
     def use_item(self, itemID, user):
         member = self.get(user)
@@ -341,7 +429,7 @@ class Party:
             data = itemData.get(itemID, None)
             if data:
                 effect = data.get("effect", {})
-                print(f">> {member.name} used {data["name"]}!")
+                print(f">> {member.name} used {data['name']}!")
                 if "hp" in effect:
                     member.hp = min(member.maxHP, member.hp + effect["hp"])
                     input(f">> HP restored to {member.hp}.")

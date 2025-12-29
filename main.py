@@ -1,6 +1,6 @@
 import math
 from battles import skillInfo
-from others import clear, draw
+from helpers import clear, draw
 from classes.party import Party
 from classes.tower import Tower
 from classes.npc import*
@@ -28,7 +28,7 @@ while run:
             input("2. Player's Stats have different purposes:")
             input(">> Vitality (VIT) and Mind (MIND) is for HP and MP")
             input(">> Strength (ST) and Dexterity (DEX) is for physical attacks")
-            input(">> Magic (MAG) and Arcane (ARC) is for magic attacks.")
+            input(">> Magic (MAG) and Arcane (ARC) is for elemental attacks.")
             input(">> Agility (AGI) is for Crit/Evasion.")
             print("3. Have fun! :) ")
 
@@ -89,18 +89,19 @@ while run:
                 if memberInput == str(i+1):
                     clear()
                     me = myParty.members[i]
-                    print(f"Name: {me.name} | lvl: {me.stats["lvl"]}")
-                    print(f"To next lvl: {math.ceil(me.stats["exp"])}/{(math.ceil(me.stats["expRequired"]))}")
+                    print(f"Name: {me.name} | lvl: {me.stats['lvl']}")
+                    print(f"To next lvl: {math.ceil(me.stats['exp'])}/{(math.ceil(me.stats['expRequired']))}")
                     draw()
                     print("STATS:")
-                    print(f"HP: {me.stats["hp"]}/{me.stats["maxHP"]}")
-                    print(f"MP: {me.stats["mp"]}/{me.stats["maxMP"]}")
-                    print(f"ATK: {math.ceil(me.stats["atk"])}")
-                    print(f"SKILLP: {math.ceil(me.stats["skillP"])}")
-                    print(f"SKILLM: {math.ceil(me.stats["skillM"])}")
-                    print(f"PHYS_DEF: {math.ceil(me.stats["defP"])}")
-                    print(f"MAG_DEF: {math.ceil(me.stats["defM"])}")
-                    print(f"ARC_DEF: {math.ceil(me.stats["defA"])}")
+                    print(f"HP: {me.stats['hp']}/{me.stats['maxHP']}")
+                    print(f"MP: {me.stats['mp']}/{me.stats['maxMP']}")
+                    print(f"ATK: {math.ceil(me.stats['atk'])}")
+                    print(f"PHYS_ATK: {math.ceil(me.stats['skillP'])}")
+                    print(f"MAG_ATK: {math.ceil(me.stats['skillM'])}")
+                    print(f"ARC_ATK: {math.ceil(me.stats['skillA'])}")
+                    print(f"PHYS_DEF: {math.ceil(me.stats['defP'])}")
+                    print(f"MAG_DEF: {math.ceil(me.stats['defM'])}")
+                    print(f"ARC_DEF: {math.ceil(me.stats['defA'])}")
                     draw()
                     print("SKILLS:")
                     for skill in me.skills:
@@ -241,7 +242,7 @@ while run:
             appearedNPC = []
             i = 1
             for id, data in npcsITEMS:
-                if data.appear(myParty.days):
+                if data.appear(myParty):
                     appearedNPC.append((id, data))
             
             if not appearedNPC:

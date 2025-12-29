@@ -3,7 +3,7 @@ build/
 dist/
 __pycache__/
 *.spec
-
+saveData.json
 # Virtual environment
 venv/
 .env/

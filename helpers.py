@@ -1,10 +1,12 @@
 import os
+import time
+import sys
 
 def clear():
     os.system("cls")
 
 def draw():
-    print("-----------------------------------")
+    print("-" * 40)
 
 def formatBuff(buff, stage, width = 6):
     if stage == 2:
@@ -18,3 +20,9 @@ def formatBuff(buff, stage, width = 6):
     elif stage == -2:
         txt = f"{buff.upper()}↓↓"
     return txt.ljust(width)
+
+def type_text(text, delay=0.1):
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(delay)

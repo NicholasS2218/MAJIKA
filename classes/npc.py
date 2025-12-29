@@ -1,5 +1,5 @@
 import json
-from others import draw, clear
+from helpers import draw, clear, type_text
 class NPC:
     def __init__(self, id, data):
         self.id = id
@@ -8,8 +8,43 @@ class NPC:
         self.type = data.get("type", "NPC")
         self.data = data
     
-    def appear(self, days):
-        return self.data.get("appear", 0) <= days
+    def appear(self, myParty):
+        for key, value in self.data.items():
+            if key.startswith("event") and isinstance(value, dict):
+                condition = value.get("appear_condition", {})
+                required_moon = condition.get("moon", 0)
+                required_day = condition.get("days", 0)
+                
+                # Check moon and day condition
+                moon_day_met = False
+                if myParty.moons > required_moon:
+                    moon_day_met = True
+                elif myParty.moons == required_moon and myParty.days >= required_day:
+                    moon_day_met = True
+                
+                if not moon_day_met:
+                    continue
+                
+                # Check if previous event is completed
+                if "event_prev" in condition:
+                    prev_event = condition["event_prev"]
+                    state = myParty.npcs.get(self.id, {})
+                    # Check if previous event was encountered (encounter count increased past it)
+                    prev_index = int(prev_event.replace("event", "")) - 1
+                    if state.get("encounter", 0) <= prev_index:
+                        continue
+                
+                # Check if required member is in party
+                if "require_member" in condition:
+                    required_member = condition["require_member"]
+                    has_member = any(m.id == required_member for m in myParty.members)
+                    if not has_member:
+                        continue
+                
+                # If all conditions pass, NPC should appear
+                return True
+    
+        return False
 
     def requirements_check(self, requirements, myParty):
         for req in requirements:
@@ -36,40 +71,75 @@ class NPC:
             "name" : False
         })
         
-        moon_ID = "moon000"
         displayName = self.altName if state["encounter"] == 0 else self.name
         encounterID = state["encounter"]
-        maxMoons = myParty.moons if myParty else encounterID
 
-        for i in range(encounterID, maxMoons + 1):
-            moon_ID = f"moon{i:03}"
-            encounter = self.data.get(moon_ID)
+        event_count = 0
+        for key in self.data.keys():
+            if key.startswith("event"):
+                event_count += 1
+
+        for i in range(encounterID, event_count):
+            event_key = f"event{i+1:03}"
+            encounter = self.data.get(event_key)
 
             if not encounter:
                 continue
 
+            condition = encounter.get("appear_condition", {})
+            required_moon = condition.get("moon", 0)
+            required_day = condition.get("days", 0)
+
+            moon_day_met = False
+            if myParty.moons > required_moon:
+                moon_day_met = True
+            elif myParty.moons == required_moon and myParty.days >= required_day:
+                moon_day_met = True
+            
+            if not moon_day_met:
+                continue
+
+            # Check previous event requirement
+            if "event_prev" in condition:
+                prev_event = condition["event_prev"]
+                prev_index = int(prev_event.replace("event", "")) - 1
+                if state.get("encounter", 0) <= prev_index:
+                    continue
+            
+            # Check required member
+            if "require_member" in condition:
+                required_member = condition["require_member"]
+                has_member = any(m.id == required_member for m in myParty.members)
+                if not has_member:
+                    continue
+            
+            # Check other requirements
             if not self.requirements_check(encounter.get("requirement", []), myParty):
                 if "alt_dialogue" in encounter:
                     print(f"{displayName}:")
                     for line in encounter["alt_dialogue"]:
-                        input(f">> {line}")
+                        type_text(f">> {line}")
+                        input()
                 return
 
             print(f"{displayName}:") #dialogue or sub-dialogue from refusal
             if state["refusal"] and "refusal" in encounter["choices"]:
                 refusalBLOCK = encounter["choices"]["refusal"]
                 for line in refusalBLOCK.get("dialogue"):
-                    input(f">> {line}")
+                    type_text(f">> {line}")
+                    input()
                 choices = refusalBLOCK.get("choices")
             
             else:
-                if encounterID == maxMoons:
-                    for line in encounter["chat"]:
-                        input(f">> {line}")
+                if state["encounter"] > i:
+                    for line in encounter.get("chat", []):
+                        type_text(f">> {line}")
+                        input()
                         
                 else:
-                    for line in encounter["dialogue"]: 
-                        input(f">> {line}")
+                    for line in encounter.get("dialogue", []): 
+                        type_text(f">> {line}")
+                        input()
                 choices = encounter.get("choices", {})
 
             if "choices" in encounter: #choices
@@ -103,13 +173,17 @@ class NPC:
                             if isinstance(response, str):
                                 if response == "SHOW_INVENTORY" and isinstance(self, Merchant):
                                     clear()
-                                    items = encounter.get("inventoryI", [])
+                                    items = encounter.get("inventoryItem", [])
                                     self.show_inventory(items, myParty, "consumables")
                                 elif response == "SHOW_WEAPONS" and isinstance(self, Merchant):
                                     clear()
-                                    items = encounter.get("inventoryW", [])
-                                    extra_items = encounter.get("inventoryS", [])
+                                    items = encounter.get("inventoryWeapon", [])
+                                    extra_items = encounter.get("inventorySidearm", [])
                                     self.show_inventory(items, myParty, "weapons", extra_items, "sidearm")
+                                elif response == "SHOW_SPELLS" and isinstance(self, Merchant):
+                                    clear()
+                                    items = encounter.get("inventorySpell", [])
+                                    self.show_inventory(items, myParty, "skills")
                                 else:
                                     input(f">> {response}")
                             elif isinstance(response, list):
@@ -133,7 +207,8 @@ class NPC:
                                     elif line == "REFUSAL":
                                         state["refusal"] = True
                                     else:
-                                        input(f">> {line}")
+                                        type_text(f">> {line}")
+                                        input()
 
                             if mode != "questions":
                                 break
@@ -142,9 +217,10 @@ class NPC:
             if "statements" in encounter:
                 print(f"{displayName}:") #statement
                 for line in encounter["statements"]: 
-                    input(f">> {line}")
+                    type_text(f">> {line}")
+                    input()
 
-            if not state["refusal"] and encounterID < myParty.moons:
+            if not state["refusal"] and state["encounter"] <= i:
                 state["encounter"] += 1
             break
 
@@ -154,8 +230,8 @@ class Merchant(NPC):
     
     def show_inventory(self, items, myParty, t, extra_items = [], p = None):
         if not items:
-            print(f"{self.name}:")
-            input(">> ... I have nothing to sell.")
+            type_text(">> ...There is no item left.")
+            input()
             return
 
         print(f"{self.name}'s Shop")
@@ -165,9 +241,16 @@ class Merchant(NPC):
 
     def display_items(self, items, myParty, t, extra_items = [], p = None):
         itemData = {}
-        path = f"json/items/" + t + ".json"
+
+        if t == "skills":
+            path = f"json/skills.json"
+            
+        else:
+            path = f"json/items/" + t + ".json"
+
         with open(path) as f:
-                itemData.update(json.load(f))
+            itemData.update(json.load(f))
+
         if p:
             path = f"json/items/" + p + ".json"
             with open(path) as f:
@@ -228,6 +311,8 @@ class Merchant(NPC):
             myParty.update_party(money = -price, newWeapon = itemID)
         elif t == "sidearm":
             myParty.update_party(money = -price, newWeapon = itemID, weaponType = "side")
+        elif t == "skills":
+            myParty.update_party(money = -price, newSkill = itemID)
         print(">> Thanks for the patronage!!")
         input(">> ")
 

@@ -1,4 +1,4 @@
-from others import*
+from helpers import*
 from classes.enemy import*
 from turns import*
 import random, math, json
@@ -15,6 +15,28 @@ def header(side, turns, enemyParty = None):
         draw()
         print("ENEMIES TURN! " + showPressTurns(turns))
         draw()
+
+def check_survival_passive(character):
+    for skill in getattr(character, 'skills', []):
+        if not isinstance(skill, dict):
+            continue
+        
+        # Check if it's a survival passive
+        if (skill.get("type") == "survival" and 
+            skill.get("skill_trigger") == "LETHAL_DMG"):
+            
+            skill_id = skill["id"]
+            
+            # Check if skill has uses remaining
+            if character.passive_uses.get(skill_id, 0) > 0:
+                character.passive_uses[skill_id] -= 1
+                character.hp = 1  # Survive with 1 HP
+                print(f"\n[PASSIVE] {skill['name']} activated!")
+                print(f">> {character.name} survives with 1 HP!")
+                input(">> ")
+                return True
+    
+    return False
 
 def set_team_passive(members):
     passive_skills = {}
@@ -43,9 +65,11 @@ def trigger_passive_by_mod_info(party, caster, target, mod_info):
                 passive_dmg = math.ceil((1+(skill_modifier/100)) * passive_skill.get("base_dmg", 1))
                 if passive_skill["type"] == "magic":
                     dmg = target.take_magic_damage(passive_dmg)
+                elif passive_skill["type"] == "arcane":
+                    dmg = target.take_arcane_damage(passive_dmg)
                 elif passive_skill["type"] == "physical":
                     dmg = target.take_physical_damage(passive_dmg)
-                print(f"[PASSIVE] {passive_skill["name"]} has been triggered!")
+                print(f"[PASSIVE] {passive_skill['name']} has been triggered!")
                 print(f"Deal additional {dmg}dmg to the enemy.")
 
 def skillInfo(skillID):
@@ -57,8 +81,18 @@ def skillInfo(skillID):
 def skillMod(party, caster, skill, dmg, target, turns, used = None):
     addedHalfTurn = False
     mod_info = None
+    dmg_type = None
+
     if skill["type"] == "physical":
-        if random.random() < caster.tempStats["critChance"]/100:
+        dmg_type = skill.get("element", "strike")
+
+        if dmg_type == "stab": #Crit Bonus
+            crit_chance = caster.tempStats["critChance"] * 1.5
+
+        else:
+            crit_chance = caster.tempStats["critChance"]
+
+        if random.random() < crit_chance/100:
             dmg *= 1.5  
             mod_info = "CRIT"
 
@@ -89,7 +123,7 @@ def skillMod(party, caster, skill, dmg, target, turns, used = None):
         useTurn(turns)
         mod_info = "ABSORB"
 
-    return dmg, mod_info
+    return dmg, mod_info, dmg_type if skill["type"] == "physical" else None
 
 def skillDmg(party, skillID, caster, turns, target, consumeTurn = False):
     usedTurn = None
@@ -99,8 +133,8 @@ def skillDmg(party, skillID, caster, turns, target, consumeTurn = False):
     skill = skillInfo(skillID)
     if skill["type"] == "physical":
         baseDMG = math.ceil((1+(caster.tempStats["skillP"]/100)) * skill.get("base_dmg", 1))
-        dmg, mod_info = skillMod(party, caster,  skill, baseDMG, target, turns, used = usedTurn)
-        final_dmg = target.take_physical_damage(dmg)
+        dmg, mod_info, dmg_type = skillMod(party, caster,  skill, baseDMG, target, turns, used = usedTurn)
+        final_dmg = target.take_physical_damage(dmg, dmg_type)
         return final_dmg, mod_info
     
     elif skill["type"] == "magic":
@@ -109,8 +143,17 @@ def skillDmg(party, skillID, caster, turns, target, consumeTurn = False):
         final_dmg = target.take_magic_damage(dmg)
         return final_dmg, mod_info
     
+    elif skill["type"] == "arcane":
+        baseDMG = math.ceil((1+(caster.tempStats["skillA"]/100)) * skill.get("base_dmg", 1))
+        dmg, mod_info = skillMod(party, caster, skill, baseDMG, target, turns, used = usedTurn)
+        final_dmg = target.take_arcane_damage(dmg)
+        return final_dmg, mod_info
+    
+    
     elif skill["type"] == "heal": 
-        heal = math.ceil((1+(caster.tempStats["skillM"]/100)) * skill.get("base_heal", 1))
+        heal_M = math.ceil((1+(caster.tempStats["skillM"]/100)) * skill.get("base_heal", 1))
+        heal_A = math.ceil((1+(caster.tempStats["skillA"]/100)) * skill.get("base_heal", 1))
+        heal = max(heal_M, heal_A)
         target.hp = min(target.hp + heal, target.maxHP)
         return heal
     
@@ -133,6 +176,7 @@ def skillDmg(party, skillID, caster, turns, target, consumeTurn = False):
             target.modify_stat("atk", buffStage, buffType)
             target.modify_stat("skillP", buffStage, buffType)
             target.modify_stat("skillM", buffStage, buffType)
+            target.modify_stat("skillA", buffStage, buffType)
 
 def result(party, exp, addMoney, dropped_key = None):
     global fight, play
@@ -187,7 +231,7 @@ def enemyAction(enemy, enemyParty, party, turns):
             if skillInfo(skillID)["type"] == "heal":
                 heal = skillDmg(enemyParty, skillID, enemy, turns, target, consumeTurn = True)
                 enemy.update_durations() #update duration of the buff only after act is done
-                print(f">> The {enemy.name} used {skillInfo(skillID)["name"]} on {target.name}!")
+                print(f">> The {enemy.name} used {skillInfo(skillID)['name']} on {target.name}!")
                 input(f">> {target.name} is healed by {heal}!")
 
             elif skillInfo(skillID)["type"] == "buff":
@@ -200,7 +244,7 @@ def enemyAction(enemy, enemyParty, party, turns):
                 skillDmg(enemyParty, skillID, enemy, turns, target, consumeTurn = True)
                 target.buffDurations[buffType] = 3
                 enemy.update_durations() #update duration of the buff only after act is done
-                print(f">> The {enemy.name} used {skill["name"]} on {target.name}!")
+                print(f">> The {enemy.name} used {skill['name']} on {target.name}!")
                 input(f">> {target.name}'s {buffType.upper()} is being buffed by {enemy.name}!")
 
             elif skillInfo(skillID)["type"] == "debuff":
@@ -213,12 +257,12 @@ def enemyAction(enemy, enemyParty, party, turns):
                 skillDmg(enemyParty, skillID, enemy, turns, target, consumeTurn = True)
                 target.buffDurations[debuffType] = 3
                 enemy.update_durations() #update duration of the buff only after act is done
-                print(f">> The {enemy.name} used {skill["name"]} on {target.name}!")
+                print(f">> The {enemy.name} used {skill['name']} on {target.name}!")
                 input(f">> {target.name}'s {debuffType.upper()} is being debuffed by {enemy.name}!")
 
             else:
                 if skillInfo(skillID)["target"] == "all" or skillInfo(skillID)["target"] == "multiple":
-                    print(f">> The {enemy.name} used {skillInfo(skillID)["name"]}!")
+                    print(f">> The {enemy.name} used {skillInfo(skillID)['name']}!")
                     first = True
                     miss = False
                     if skillInfo(skillID)["target"] == "all":
@@ -273,7 +317,7 @@ def enemyAction(enemy, enemyParty, party, turns):
 
                 else:
                     if hit(target.tempStats["dodgeChance"]/100):
-                        print(f">> The {enemy.name} used {skillInfo(skillID)["name"]}!")
+                        print(f">> The {enemy.name} used {skillInfo(skillID)['name']}!")
                         dmg, mod_info = skillDmg(enemyParty, skillID, enemy, turns, target, consumeTurn = True)
                         enemy.update_durations() #update duration of the buff only after act is done
                         if mod_info is not None:
@@ -312,7 +356,7 @@ def action(party, member, target_party, turns):
                 formatBuff("agi", member.buff_agi)
             ])
             print(f">> {member.name} | HP: {member.hp}/{member.maxHP} | MP: {member.mp}/{member.maxMP} | {buffs}")
-            print(f"1. Attack | {member.weapon.get("element").upper()}")
+            print(f"1. Attack | {member.weapon.get('element').upper()}")
             print("2. Skills")
             print("3. Items")
             print("4. Pass")
@@ -334,15 +378,21 @@ def action(party, member, target_party, turns):
                             usedTurn = useTurn(turns)
                             weaponATK = member.tempStats.get("atk", 1)
                             weapon = member.weapon
-                            finalDMG, mod_info = skillMod(party, member, weapon, weaponATK, target, turns, used = usedTurn)
-                            dmg = max(target.take_physical_damage(finalDMG), 1)
-                            member.mp += 2
+                            dmg_type =  weapon.get("element", "slash")
+                            finalDMG, mod_info, _ = skillMod(party, member, weapon, weaponATK, target, turns, used = usedTurn)
+                            dmg = max(target.take_physical_damage(finalDMG, dmg_type), 1)
+
+                            if dmg_type == "slash" and dmg > 0 and mod_info not in ("ABSORB", "BLOCK"):
+                                target.apply_bleed()
+                                print(f">> {target.name} is bleeding!")
+
+                            member.mp += math.ceil(member.maxMP * 0.02)
                             if member.mp >= member.maxMP:
                                 member.mp = member.maxMP
 
                             member.update_durations() #update duration of the buff only after act is done
                             if mod_info is not None:
-                                    print(f">> {mod_info}!!!") 
+                                print(f">> {mod_info}!!!") 
                             if mod_info not in ("ABSORB", "BLOCK"):
                                 print(f">> {member.name} attacked the {target.name} for {dmg} damage!")
 
@@ -405,7 +455,7 @@ def action(party, member, target_party, turns):
                                         heal = skillDmg(party, skillID, member, turns, ally, consumeTurn = True)
                                         member.mp = max(0, member.mp - skillInfo(skillID)["mp_cost"])
                                         member.update_durations() #update duration of the buff only after act is done
-                                        print(f">> {member.name} used {skillInfo(skillID)["name"]} on {ally.name}!")
+                                        print(f">> {member.name} used {skillInfo(skillID)['name']} on {ally.name}!")
                                         print(f">> {ally.name} is healed by {heal}!")
                                         input(">> ")
                                         break
@@ -440,7 +490,7 @@ def action(party, member, target_party, turns):
                                         member.mp = max(0, member.mp - skillInfo(skillID)["mp_cost"])
                                         ally.buffDurations[buffType] = 3
                                         member.update_durations() #update duration of the buff only after act is done
-                                        print(f">> {member.name} used {skill["name"]} on {ally.name}!")
+                                        print(f">> {member.name} used {skill['name']} on {ally.name}!")
                                         print(f">> {ally.name}'s {buffType.upper()} is being buffed by {member.name}!")
                                         input(">>")
                                         break
@@ -466,7 +516,7 @@ def action(party, member, target_party, turns):
                                         member.mp = max(0, member.mp - skillInfo(skillID)["mp_cost"])
                                         target.buffDurations[debuffType] = 3
                                         member.update_durations() #update duration of the buff only after act is done
-                                        print(f">> {member.name} used {skillInfo(skillID)["name"]}!")
+                                        print(f">> {member.name} used {skillInfo(skillID)['name']}!")
                                         print(f">> {target.name}'s {debuffType.upper()} is being debuffed by {member.name}!")
                                         input(">> ")
                                         break
@@ -477,7 +527,7 @@ def action(party, member, target_party, turns):
                                     confirm = input(">> ").upper()
 
                                     if confirm == "Y":
-                                        print(f">> {member.name} used {skillInfo(skillID)["name"]}!")
+                                        print(f">> {member.name} used {skillInfo(skillID)['name']}!")
                                         member.mp = max(0, member.mp - skillInfo(skillID)["mp_cost"])
                                         first = True
                                         miss = False
@@ -542,7 +592,7 @@ def action(party, member, target_party, turns):
                                             target = target_party.enemyMembers[selectedINT - 1]
                                             member.mp = max(0, member.mp - skillInfo(skillID)["mp_cost"])
                                             if hit(target.tempStats["dodgeChance"]/100):
-                                                print(f">> {member.name} used {skillInfo(skillID)["name"]}!")
+                                                print(f">> {member.name} used {skillInfo(skillID)['name']}!")
                                                 dmg, mod_info = skillDmg(party, skillID, member, turns, target, consumeTurn = True)
                                                 member.update_durations() #update duration of the buff only after act is done
                                                 if mod_info is not None:
@@ -684,6 +734,9 @@ def battle(party, areaID, state = None):
                     play = True
                     break
 
+            if state == "a":
+                state = None
+
         enemyParty.update()
         if not enemyParty.is_defeated(): #check if die
             #ENEMY TURN
@@ -698,5 +751,3 @@ def battle(party, areaID, state = None):
                         mainMenu = True
                         return "defeated"
                 input(">> ")
-            if state == "a":
-                state = None

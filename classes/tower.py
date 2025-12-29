@@ -1,6 +1,6 @@
 import random, math, json
 from battles import battle
-from others import clear, draw
+from helpers import clear, draw
 
 class Floor:
     def __init__(self, num, doors):

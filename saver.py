@@ -21,13 +21,14 @@ def update(member):
     agi = member.get("agi", 1)
 
     atk = member.get("baseATK", 1) * (1 + (((lvl + st + dex) / (2 + math.log10(lvl)))/100)) #1.5 - 50
-    skillP = math.sqrt((lvl*2/3) + ((st + dex)/1.5)) + 10 # 11.4% - 21.54%
-    skillM = math.sqrt((lvl*2/3) + mag) + 10 # 10.8% - 28.11%
-    defP = (lvl + math.ceil(math.sqrt(vit))) / 3
-    defM = (lvl + math.ceil(math.sqrt(mind))) / 3
-    defA = (lvl + math.ceil(math.sqrt(arc))) / 3
-    critChance = 20 + math.ceil(math.sqrt(agi) * 2)  # 22%–40%
-    dodgeChance = 10 + math.ceil(math.sqrt(agi) / 0.7) # 12%–25%
+    skillP = ((lvl*2/3) + ((st + dex)/1.5))**0.75 # 1.68% - 53.18%
+    skillM = ((lvl*2/3) + mag)**0.75 # 1.47% - 46.39%
+    skillA = ((lvl*2/3) + arc)**0.75 # 1.47% - 46.39%
+    defP = (lvl + math.ceil(math.sqrt(vit) + (2 * (st + dex)))) / 3 # 2% - 40.33%
+    defM = (lvl + math.ceil(math.sqrt(mind))) / 3 # 0.67% - 36.67%
+    defA = (lvl + math.ceil(math.sqrt(arc))) / 3 # 0.67% - 36.67%
+    critChance = 20 + math.ceil(math.sqrt(agi) * 2)  # 22% – 40%
+    dodgeChance = 10 + math.ceil(math.sqrt(agi) / 0.7) # 12% – 25%
 
     member["stats"] = {
         "name": name,
@@ -42,6 +43,7 @@ def update(member):
         "skills": member.get("skills", []),
         "skillP": skillP,
         "skillM": skillM,
+        "skillA": skillA,
         "defP": defP,
         "defM": defM,
         "defA": defA,

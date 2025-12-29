@@ -1,5 +1,5 @@
 import math, random, json
-from others import*
+from helpers import*
 
 class Enemy:
     def __init__(self, enemy_data):
@@ -19,6 +19,10 @@ class Enemy:
         self.skills = []
         self.skillsID = enemy_data.get("skills", [])
         self.load_skills()
+
+        self.passive_uses = {}
+        self.initialize_passive_uses()
+
         self.exp = enemy_data["exp"]
         self.money = enemy_data["money"]
         self.key_item = enemy_data.get("key_item", [])
@@ -48,6 +52,13 @@ class Enemy:
         }
         self.tempStats = self.stats.copy()
 
+        self.status_effects = {
+            "bleed": {"active": False, "duration": 0, "target_maxHP": 0},
+            "frenzy": {},
+            "mute": {},
+            "disarm": {}
+        }
+
     def scale(self, days):
         for key in self.stats:
             if isinstance(self.stats[key], (int, float)):
@@ -66,7 +77,16 @@ class Enemy:
                 skillData = skillData.copy()  # Create a copy of the skill data
                 skillData["id"] = skillID  # Add the ID to the skill data
                 self.skills.append(skillData)  # Append the skill data to the skills list
-        
+    
+    def initialize_passive_uses(self):
+        for skill in self.skills:
+            if skill.get("type") == "survival":
+                uses = skill.get("uses_per_battle", 1)
+                self.passive_uses[skill["id"]] = uses
+
+    def reset_passive_uses(self):
+        self.initialize_passive_uses()
+
     def reset_stat(self):
         self.tempStats = self.stats.copy()
 
@@ -113,29 +133,80 @@ class Enemy:
         if self.hp <= 0:
             print(f">> {self.name} is defeated!")
 
-    def take_physical_damage(self, base_dmg):
-        dmg = math.ceil(base_dmg * (1 - (self.defP/100)))
+    def take_physical_damage(self, base_dmg, dmg_type="None"):
+        if dmg_type == "strike":
+            defPEN = 0.5 
+            dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100 * defPEN )))
+        else:
+            dmg = math.ceil(base_dmg * (1 - (self.stats["defP"]/100)))
+
         reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
 
     def take_magic_damage(self, base_dmg):
-        dmg = math.ceil(base_dmg * (1 - (self.defP/100)))
+        dmg = math.ceil(base_dmg * (1 - (self.stats["defM"]/100)))
         reduced = max(dmg, 1)
         self.hp = max(self.hp - reduced, 0)
         return reduced
     
+    def take_arcane_damage(self, base_dmg):
+        dmg = math.ceil(base_dmg * (1 - (self.stats["defA"]/100)))
+        reduced = max(dmg, 1)
+        self.hp = max(self.hp - reduced, 0)
+        return reduced
+    
+    def apply_bleed(self):
+        self.status_effects["bleed"] = {
+            "active": True,
+            "duration": 3
+        }
+
+    def process_status_effects(self):
+        bleed = self.status_effects["bleed"]
+        if bleed["active"]:
+            bleed_dmg = math.ceil(self.maxHP * 0.05)
+            self.hp = max(self.hp - bleed_dmg, 0)
+            bleed["duration"] -= 1
+            
+            print(f">> {self.name} takes {bleed_dmg} bleed damage!")
+            
+            if bleed["duration"] <= 0:
+                bleed["active"] = False
+                print(f">> {self.name}'s bleed has ended.")
+            else:
+                print(f">> Bleed duration: {bleed['duration']} turns remaining.")
+            
+            return bleed_dmg
+        return 0
+
     def attack(self, target):
         if self.is_alive():
             damage = max(self.atk * (1 - (target.stats["defP"]/100)), 1)
             return damage
         return 0
     
+    def get_available_skills(self):
+        available = []
+        hp_percent = (self.hp / self.maxHP) * 100
+        
+        for skill in self.skills:
+            # Check if skill has phase requirement
+            min_phase = skill.get("min_hp_percent", 0)  # Minimum HP% to unlock
+            max_phase = skill.get("max_hp_percent", 100)  # Maximum HP% to use
+            
+            if min_phase <= hp_percent <= max_phase:
+                available.append(skill)
+        
+        return available if available else self.skills 
+    
     def behavior(self, enemyParty, targetParty):
-        dmgSkills = [skill for skill in self.skills if skill["type"] in ("physical", "magic")]
-        buffSkills = [skill for skill in self.skills if skill["type"] == "buff"]
-        healSkills = [skill for skill in self.skills if skill["type"] == "heal"]
-        debuffSkills = [skill for skill in self.skills if skill["type"] == "debuff"]
+        available_skills = self.get_available_skills()
+
+        dmgSkills = [skill for skill in available_skills if skill["type"] in ("physical", "magic")]
+        buffSkills = [skill for skill in available_skills if skill["type"] == "buff"]
+        healSkills = [skill for skill in available_skills if skill["type"] == "heal"]
+        debuffSkills = [skill for skill in available_skills if skill["type"] == "debuff"]
 
         total = 0
         if dmgSkills: total += 1

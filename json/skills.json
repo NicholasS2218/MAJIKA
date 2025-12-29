@@ -33,16 +33,61 @@
         "type": "physical",
         "target": "single",
         "base_dmg": 7,
-        "mp_cost": 3
+        "mp_cost": 1
     },
     "p005" : {
+        "name": "Tackle",
+        "desc": "Minor STRIKE atk to 1 target",
+        "element": "strike",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 8,
+        "mp_cost": 1
+    },
+    "p006" : {
         "name": "Bite",
         "desc": "Minor STAB atk to 1 target",
         "element": "stab",
         "type": "physical",
         "target": "single",
         "base_dmg": 7,
-        "mp_cost": 3
+        "mp_cost": 1
+    },
+    "p007" : {
+        "name": "Power Slash",
+        "desc": "Medium SLASH atk to 1 target",
+        "element": "slash",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 20,
+        "mp_cost": 7
+    },
+    "p008" : {
+        "name": "Stamp",
+        "desc": "Medium STRIKE atk to 1 target",
+        "element": "strike",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 20,
+        "mp_cost": 7
+    },
+    "p009" : {
+        "name": "Deep Thrust",
+        "desc": "Medium STAB atk to 1 target",
+        "element": "stab",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 20,
+        "mp_cost": 7
+    },
+    "p010" : {
+        "name": "Deep Thrust",
+        "desc": "Medium STAB atk to 1 target",
+        "element": "stab",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 20,
+        "mp_cost": 7
     },
     "p011" : {
         "name": "Wild Strikes",
@@ -52,7 +97,9 @@
         "target": "multiple",
         "hits" : 3,
         "base_dmg": 7,
-        "mp_cost": 10
+        "mp_cost": 10,
+        "min_hp_percent": 0,
+        "max_hp_percent": 50
     },
     "m001" : {
         "name": "Blaze",
@@ -87,7 +134,7 @@
         "element": "wind",
         "type": "magic",
         "target": "single",
-        "base_dmg": 12,
+        "base_dmg": 10,
         "mp_cost": 5
     },
     "m005" : {
@@ -100,7 +147,7 @@
         "mp_cost": 7
     },
     "m006" : {
-        "name": "Hex",
+        "name": "Dark Shot",
         "desc" : "Weak DARK atk to 1 target",
         "element": "dark",
         "type": "magic",
@@ -114,8 +161,98 @@
         "element": "fire",
         "type": "magic",
         "target": "all",
-        "base_dmg": 18,
+        "base_dmg": 10,
         "mp_cost": 12
+    },
+    "a001" : {
+        "name": "Blood Flame",
+        "desc" : "Medium FIRE atk to 1 target",
+        "element": "fire",
+        "type": "arcane",
+        "target": "single",
+        "base_dmg": 20,
+        "hp_cost": 20 
+    },
+    "a002" : {
+        "name": "Blood Crystal",
+        "desc" : "Medium ICE atk to 1 target",
+        "element": "ice",
+        "type": "arcane",
+        "target": "single",
+        "base_dmg": 20,
+        "hp_cost": 20 
+    },
+    "a003" : {
+        "name": "Kosmik Shot",
+        "desc" : "Medium ELEC atk to 1 target",
+        "element": "electric",
+        "type": "arcane",
+        "target": "single",
+        "base_dmg": 20,
+        "hp_cost": 20 
+    },
+    "a004" : {
+        "name": "Frenzy Shot",
+        "desc" : "Medium WIND atk to 1 target",
+        "element": "wind",
+        "type": "arcane",
+        "target": "single",
+        "base_dmg": 18,
+        "hp_cost": 20 
+    },
+    "a005" : {
+        "name": "Blood Blessing",
+        "desc" : "Medium LIGHT atk to 1 target",
+        "element": "light",
+        "type": "arcane",
+        "target": "single",
+        "base_dmg": 25,
+        "hp_cost": 20 
+    },
+    "a006" : {
+        "name": "Blood Hex",
+        "desc" : "Medium DARK atk to 1 target",
+        "element": "dark",
+        "type": "arcane",
+        "target": "single",
+        "base_dmg": 25,
+        "hp_cost": 50 
+    },
+    "a007" : {
+        "name": "Blood Combustion",
+        "desc" : "Medium FIRE atk to ALL targets",
+        "element": "fire",
+        "type": "arcane",
+        "target": "all",
+        "base_dmg": 25,
+        "hp_cost": 70 
+    },
+    "a008" : {
+        "name": "Blood Mist",
+        "desc" : "Medium ICE atk to ALL targets",
+        "element": "ice",
+        "type": "arcane",
+        "target": "all",
+        "base_dmg": 25,
+        "hp_cost": 70 
+    },
+    "ap001" : {
+        "name": "Blood Slash",
+        "desc" : "Medium SLASH atk to 1 target",
+        "element": "slash",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 30,
+        "hp_cost": 20 
+    },
+    "ap002" : {
+        "name": "Blood Stake",
+        "desc" : "Medium STAB atk to 1 target",
+        "element": "slash",
+        "type": "physical",
+        "target": "single",
+        "base_dmg": 30,
+        "hp_cost": 20 
     },
     "pg001" : {
         "name": "Burst Shot",
@@ -191,7 +328,7 @@
     },
     "b003" : {
         "name": "Rally",
-        "desc" : "Buff ATK to 1 target by 1 stage",
+        "desc" : "Buff all types of ATK to 1 target by 1 stage",
         "element": "atk",
         "type": "buff",
         "target": "single",
@@ -199,7 +336,66 @@
         "duration": 3,
         "mp_cost": 8
     },
+    "b004" : {
+        "name": "Shield Barrier",
+        "desc" : "Buff DEF to all party members by 1 stage",
+        "element": "def",
+        "type": "buff",
+        "target": "single",
+        "buff_stage": 1,
+        "duration": 3,
+        "mp_cost": 25
+    },
+    "b005" : {
+        "name": "Rabbit Foot",
+        "desc" : "Buff AGI to all party members by 1 stage",
+        "element": "agi",
+        "type": "buff",
+        "target": "single",
+        "buff_stage": 1,
+        "duration": 3,
+        "mp_cost": 25
+    },
+    "b006" : {
+        "name": "Battle Cry",
+        "desc" : "Buff all types of ATK to all party members by 1 stage",
+        "element": "atk",
+        "type": "buff",
+        "target": "all",
+        "buff_stage": 1,
+        "duration": 3,
+        "mp_cost": 25
+    },
+    "b009" : {
+        "name": "Power Charge",
+        "desc" : "Increases the damage of the next PHYS attack for self.",
+        "element": "atk",
+        "type": "buff",
+        "target": "single",
+        "buff_stage": 1,
+        "mp_cost": 15
+    },
+    "b010" : {
+        "name": "Focus Charge",
+        "desc" : "Increases the damage of the next MAG/ARC attack for self.",
+        "element": "atk",
+        "type": "buff",
+        "target": "single",
+        "buff_stage": 1,
+        "mp_cost": 15
+    },
+
     "d001" : {
+        "name": "Shield Break",
+        "desc" : "Debuff DEF to 1 target by 1 stage",
+        "element": "def",
+        "type": "debuff",
+        "target": "single",
+        "debuff_stage": 1,
+        "duration": 3,
+        "mp_cost": 7
+    },
+    "d002" : {
         "name": "Lethargy",
         "desc" : "Debuff AGI to 1 target by 1 stage",
         "element": "agi",
@@ -209,9 +405,57 @@
         "duration": 3,
         "mp_cost": 8
     },
+    "d003" : {
+        "name": "Arm Break",
+        "desc" : "Debuff all types of ATK to 1 target by 1 stage",
+        "element": "def",
+        "type": "debuff",
+        "target": "single",
+        "debuff_stage": 1,
+        "duration": 3,
+        "mp_cost": 7
+    },
+    "d004" : {
+        "name": "Disarm",
+        "desc" : "Apply DISARM to 1 target. Disabling PHYS SKILLS",
+        "element": "disarm",
+        "type": "status",
+        "target": "single",
+        "debuff_stage": 1,
+        "duration": 3,
+        "mp_cost": 20
+    },
+    "d005" : {
+        "name": "Silence",
+        "desc" : "Apply SILENT to 1 target. Disabling MAGIC SKILLS",
+        "element": "silent",
+        "type": "status",
+        "target": "single",
+        "debuff_stage": 1,
+        "duration": 3,
+        "mp_cost": 17
+    },
+    "d006" : {
+        "name": "Mute",
+        "desc" : "Apply MUTE to 1 target. Disabling ARCANE SKILLS",
+        "element": "mute",
+        "type": "status",
+        "target": "single",
+        "debuff_stage": 1,
+        "duration": 3,
+        "mp_cost": 17
+    },
     "ps001" : {
+        "name": "Endure",
+        "desc" : "[Passive] Endures lethal attack with 1 HP once in battle.", 
+        "type": "survival",
+        "skill_type": "self_passive",
+        "skill_trigger": "LETHAL_DMG",
+        "uses_per_battle": 1
+    },
+    "ps002" : {
         "name": "Wind Chase",
-        "desc" : "[LUCATIEL] Chance to follow up whenever ally successfully CRIT/WEAK", 
+        "desc" : "[Passive] Chance to follow up whenever ally successfully CRIT/WEAK", 
         "element": "wind",
         "type": "magic",
         "skill_type": "team_passive",
@@ -220,5 +464,14 @@
         "target": "single",
         "base_dmg" : 5,
         "base_chance" : 10
+    },
+    "ps003" : {
+        "name": "Nihilistic Approach",
+        "desc" : "[Passive] Chance to gain a buff whenever enemy debuff the user", 
+        "type": "buff",
+        "skill_type": "self_passive",
+        "skill_trigger": "DEBUFF",
+        "unlock_criteria": ["???", "aml001"],
+        "target": "single"
     }
 }

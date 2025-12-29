@@ -1,13 +1,17 @@
 {
     "npc001" : {
         "name": "The Bard",
-        "moon001" : {
+        "event001" : {
+            "appear_condition" : {
+                "days" : 1,
+                "moon" : 1
+            },
             "dialogue": [
                 "A new recruit eh?",
-                "Now don't look at me like that. I'm here to aid you.",
-                "Now go on, reach the top of the tower and defeat the guardian.",
-                "Only that will you pass the test.",
-                "...Now, do you have any questions?"
+                "Now now... Don't look at me like that.",
+                "I am here to aid you, my dear friend",
+                "Now go on.. Reach the top of the tower and defeat the guardian.",
+                "Only then will you pass the test."
             ],
             "choices": {
                 "mode" : "questions",
@@ -17,8 +21,8 @@
                         "Get that and you can pass the test."
                     ],
                     "Your aid?" : [
-                        "Yes, I can heal by playing a song.",
-                        "So no need to worries if you lose."
+                        "Yes, I can heal any kind of injuries by playing a song.",
+                        "So no need to worry if you lost your battle."
                     ]
                 }
             },
@@ -33,16 +37,19 @@
     },
     "npc002" : {
         "name": "Lucatiel",
-        "alt-name": "The White Lady",
+        "alt-name": "The Lady in White",
         "type": "playable",
-        "appear": 5,
-        "moon000" : {
+        "event001" : {
+            "appear_condition" : {
+                "days" : 5,
+                "moon" : 1
+            },
             "dialogue": [
                 "...",
                 "Have you seen it? The one at the top.",
                 "The Gate Keeper.",
                 "Chances of beating it is low if we fought it alone.",
-                "....But, I have a proposal for you.",
+                "....Fortunately, I have a proposal for you.",
                 "What say we join forces? It will speed things up."
             ],
             "alt_dialogue": [
@@ -86,7 +93,13 @@
                 }
             }
         },
-        "moon001" : {
+        "event002" : {
+            "appear_condition" : {
+                "days" : 5,
+                "moon" : 1,
+                "event_prev" : "event001",
+                "require_member" : "lct001"
+            },
             "dialogue" : [
                 "...",
                 "Greetings, is there anything you wish to know?",
@@ -112,10 +125,16 @@
                 "...Something wrong?"
             ]
         },
-        "moon002" : {
+        "event003" : {
+            "appear_condition" : {
+                "days" : 1,
+                "moon" : 2,
+                "event_prev" : "event002",
+                "require_member" : "lct001"
+            },
             "requirement" : ["k001", ["lct001", "r000"]],
             "dialogue" : [
-                "..Pardon, but the last fight we had against the Gate Keeper.",
+                "..Pardon me, but the last fight we had against the Gate Keeper.",
                 "Didn't it drop something?",
                 "Can you show me? If only for a while."
             ],
@@ -127,7 +146,8 @@
                         "It seems to be able to move across time and space abnormally fast.",
                         "...Forgive me, but please allow me to imbue a part of it to myself.",
                         "RANK_UP:lct001",
-                        "...!! W-What an unstable power. But I feel stronger."
+                        "...!! Urgh...",
+                        "Wha- What an unstable power."
                     ],
                     "Refuse" : [
                         "I understand.",
@@ -144,11 +164,14 @@
     "npc003" : {
         "name" : "The Shopkeeper",
         "type": "Merchant",
-        "appear": 2,
-        "moon001" : {
+        "event001" : {
+            "appear_condition" : {
+                "days" : 3,
+                "moon" : 1
+            },
             "dialogue" : [
                 "Hi, welcome. Are you a new customer?",
-                "Or a new company?",
+                "..Or a new company?",
                 "What's it gonna be?"
             ],
             "choices": {
@@ -167,17 +190,20 @@
             "chat" : [
                 "Welcome! Anything I can help?"
             ],
-            "inventoryI": ["hp001", "hp002", "mp001"]
+            "inventoryItem": ["hp001", "hp002", "mp001"]
         }
     },
     "npc004" : {
         "name" : "The GearSmith",
         "type": "Merchant",
-        "appear": 4,
-        "moon001" : {
+        "event001" : {
+            "appear_condition" : {
+                "days" : 5,
+                "moon" : 1
+            },
             "dialogue" : [
                 "...",
-                "What are you looking at?",
+                "What are you- What are you looking at?",
                 "If it's weapons and altered sidearms, then you are welcomed!"
             ],
             "choices": {
@@ -191,13 +217,53 @@
                 }
             },
             "statements": [
-                "Come back soon!"
+                "Later then..."
             ],
             "chat" : [
                 "..Anything you want?"
             ],
-            "inventoryS": ["fla001", "flb001", "bb001"],
-            "inventoryW": ["swd002"]
+            "inventorySidearm": ["fla001", "flb001", "bb001"],
+            "inventoryWeapon": ["swd002"]
+        }
+    },
+    "npc005" : {
+        "name": "Grimm",
+        "alt-name": "The Hooded Man",
+        "type": "Merchant",
+        "event001" : {
+            "appear_condition" : {
+                "days" : 1,
+                "moon" : 2
+            },
+            "dialogue" : [
+                "Are you the one who slew the Gate Keeper?",
+                "Interesting.. you might have some potential.",
+                "Pray tell, do you engage in spells beyond the bounds of regulation?",
+                "Spells should be mysterious and wild, not dull and standardized.",
+                "Don't you agree? Hheheh..",
+                "...",
+                "Call me Grimm, I collect spells and I can share them with you-",
+                "For a modest fee, of course.."
+            ],
+            "choices": {
+                "mode" : "questions",
+                "options" : {
+                    "I am interested" : "SHOW_SPELLS",
+                    "Who are you?" : [
+                        "No one important. Just an observer.",
+                        "Spells can grow with the user.",
+                        "The more people use my spells, the more it will grow into something new.",
+                        "And I, am interested in seeing how it will grow."
+                    ]
+                }
+            },
+            "statements": [
+                "Not interested? That's fine."
+            ],
+            "chat" : [
+                "..Interested in learning new spells?"
+            ],
+            "inventorySpell": ["a001", "a002", "a003", "a004", "a005", "a006", "ap001", "ap002"]
         }
     }
 }
