@@ -127,14 +127,16 @@ class PartyMember:
             if hasattr(self, stat):
                 setattr(self, stat, getattr(self, stat) + value)
                 print(f">> {stat.upper()}: {getattr(self, stat) - value} -> {getattr(self, stat)}")
-
+    
         if "vit" in gains:
-            bonus = self.vit * 5 #math.ceil(math.sqrt(vit + self.lvl)*1.5)
+            growth_rate = 2.0 if self.lvl <= 20 else 0.7 if self.lvl <= 50 else 0.2 if self.lvl <= 75 else 0.1 
+            bonus = math.ceil(1 * (self.vit ** 0.5) * growth_rate) #math.ceil(math.sqrt(vit + self.lvl)*1.5)
             self.maxHP +=  bonus
             tallyHP += bonus
 
         if "mind" in gains:
-            bonus = self.mind * 5 #math.ceil(math.sqrt(mind + self.lvl)*1.2)
+            growth_rate = 2.0 if self.lvl <= 20 else 0.7 if self.lvl <= 50 else 0.2 if self.lvl <= 75 else 0.1 
+            bonus = math.ceil(0.7 * (self.mind ** 0.5) * growth_rate) #math.ceil(math.sqrt(mind + self.lvl)*1.2)
             self.maxMP +=  bonus
             tallyMP += bonus
 
@@ -196,7 +198,7 @@ class PartyMember:
             skillsJSON = json.load(f)
         
         full_skills = []
-        for skillID in self.skills:
+        for skillID in self.skillIDs:
             if skillID in skillsJSON:
                 skillData = skillsJSON[skillID].copy()
                 skillData["id"] = skillID
@@ -398,20 +400,22 @@ class Party:
 
         itemlist = []
         itemEffect = []
-        for i, (itemID, item) in enumerate(self.inventory.items(), 1):
+        for itemID, item in self.inventory.items():
             if item["quantity"] > 0:
                 data = itemData.get(itemID, None)
-                print(f"{i}. {data['name']} {item['quantity']}x | {data['description']}")
-                itemlist.append(itemID)
-                itemEffect.append(data["effect"])
+                if data:
+                    print(f"{data['name']} {item['quantity']}x | {data['description']}")
+                    itemlist.append(itemID)
+                    itemEffect.append(data["effect"])
         
         if itemlist:
             print("0. Back")
-            return itemlist, itemEffect
+            
         else:
             print("No items available.")
             print("0. Back")
-            return [], []
+
+        return itemlist, itemEffect
     
     def display_keys(self):
         with open("json/items/key.json") as f:
@@ -430,15 +434,26 @@ class Party:
             data = itemData.get(itemID, None)
             if data:
                 effect = data.get("effect", {})
+                messages = [f"{member.name} used {data['name']}!"]
                 print(f">> {member.name} used {data['name']}!")
+
                 if "hp" in effect:
+                    old_hp = member.hp
                     member.hp = min(member.maxHP, member.hp + effect["hp"])
-                    input(f">> HP restored to {member.hp}.")
+                    restored = member.hp - old_hp
+                    messages.append(f"HP restored to {member.hp}")
+                    print(f">> HP restored to {member.hp}.")
+
                 if "mp" in effect:
+                    old_mp = member.mp
                     member.mp = min(member.maxMP, member.mp + effect["mp"])
-                    input(f">> MP restored to {member.mp}.")
+                    restored = member.mp - old_mp
+                    messages.append(f"MP restored to {member.mp}")
+                    print(f">> MP restored to {member.mp}.")
                 #add other effects here
                 item["quantity"] -= 1
+                return " | ".join(messages)
+        return None
 
     def add_equip(self, itemID, user = None, type = "weapon"):
         storage = self.equipment[type]

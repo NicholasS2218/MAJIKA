@@ -41,7 +41,7 @@ def check_survival_passive(character):
 def set_team_passive(members):
     passive_skills = {}
     for member in members:
-        for skill_ID in member.skills:
+        for skill_ID in member.skillIDs:
             skill_data = skillInfo(skill_ID)
             if skill_data.get("skill_type")  == "team_passive":
                 passive_skills[skill_ID] =  skill_data.get("skill_trigger")
@@ -413,7 +413,7 @@ def action(party, member, target_party, turns):
             elif act == "2": 
                 header("a", turns, target_party)
                 print("Skills:")
-                member.all_skills = (member.skills or []) + (member.sideSkills or [])
+                member.all_skills = (member.skillIDs or []) + (member.sideSkills or [])
                 for i, skill in enumerate(member.all_skills, start=1):
                     skillName = skillInfo(skill)["name"]
                     skillDesc = skillInfo(skill)["desc"]

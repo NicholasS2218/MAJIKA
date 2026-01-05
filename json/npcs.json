@@ -36,14 +36,14 @@
         }
     },
     "npc002" : {
-        "name": "Lucatiel",
-        "alt-name": "The Lady in White",
+        "name": "The Lady in White",
         "type": "playable",
         "event001" : {
             "appear_condition" : {
-                "days" : 5,
+                "days" : 1,
                 "moon" : 1
             },
+            "occurance" : 1,
             "dialogue": [
                 "...",
                 "Have you seen it? The one at the top.",
@@ -64,7 +64,9 @@
                     "Very well" : [
                         "You will not regret this decision.", 
                         "I believe I have not introduced myself. I am Lucatiel, a recent recruit just like you",
-                        "JOIN_PARTY:json/playable/Lucatiel.json"
+                        "UPDATE_NAME:Lucatiel",
+                        "JOIN_PARTY:json/playable/Lucatiel.json",
+                        "END"
                     ],
                     "I refuse" : [
                         "..I understand.", 
@@ -82,7 +84,8 @@
                                 "You will not regret this decision.", 
                                 "I believe I have not introduced myself. I am Lucatiel, a recent recruit just like you.",
                                 "UPDATE_NAME:Lucatiel",
-                                "JOIN_PARTY:playable/Lucatiel.json"
+                                "JOIN_PARTY:json/playable/Lucatiel.json",
+                                "END"
                             ],
                             "Not yet" : [
                                 "..I see.",
@@ -95,7 +98,7 @@
         },
         "event002" : {
             "appear_condition" : {
-                "days" : 5,
+                "days" : 1,
                 "moon" : 1,
                 "event_prev" : "event001",
                 "require_member" : "lct001"
